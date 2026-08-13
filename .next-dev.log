@@ -1,0 +1,76 @@
+
+> tunas-harapan@0.1.0 dev
+> next dev --hostname 0.0.0.0
+
+▲ Next.js 16.3.0 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+- Environments: .env
+✓ Ready in 1035ms
+✓ Running next.config.ts took 63ms
+
+ GET / 200 in 1061ms (next.js: 612ms, application-code: 449ms)
+ GET /login 200 in 106ms (next.js: 37ms, application-code: 69ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+ POST /api/auth/login 500 in 693ms (next.js: 99ms, application-code: 594ms)
+ GET /login 200 in 40ms (next.js: 8ms, application-code: 32ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+ POST /api/auth/login 500 in 103ms (next.js: 5ms, application-code: 98ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+ POST /api/auth/login 500 in 224ms (next.js: 7ms, application-code: 217ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+ POST /api/auth/login 500 in 313ms (next.js: 3ms, application-code: 310ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+ POST /api/auth/login 500 in 90ms (next.js: 3ms, application-code: 87ms)
+ GET /login 200 in 34ms (next.js: 5ms, application-code: 28ms)
+ GET /login 200 in 55ms (next.js: 5ms, application-code: 50ms)

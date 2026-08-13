@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  KETUA
+  SEKRETARIS
+  BENDAHARA
+  ANGGOTA
+
+  @@map("role_enum")
+}
+
+enum Gender {
+  L
+  P
+
+  @@map("gender_enum")
+}
+
+enum MemberStatus {
+  AKTIF
+  NON_AKTIF
+
+  @@map("member_status_enum")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("approval_status_enum")
+}
+
+enum Visibility {
+  PUBLIC
+  INTERNAL
+
+  @@map("visibility_enum")
+}
+
+enum CashType {
+  INCOME
+  EXPENSE
+
+  @@map("cash_type_enum")
+}
+
+model User {
+  id                String       @id @default(uuid()) @db.Uuid
+  memberId          String       @unique @map("member_id") @db.VarChar(30)
+  fullName          String       @map("full_name") @db.VarChar(100)
+  email             String       @unique @db.VarChar(100)
+  passwordHash      String       @map("password_hash") @db.VarChar(255)
+  isDefaultPassword Boolean      @default(true) @map("is_default_password")
+  gender            Gender
+  birthPlace        String?      @map("birth_place") @db.VarChar(50)
+  birthDate         DateTime?    @map("birth_date") @db.Date
+  phoneWa           String       @map("phone_wa") @db.VarChar(20)
+  dusun             String       @default("Kemitir") @db.VarChar(50)
+  rt                String       @db.VarChar(5)
+  rw                String       @db.VarChar(5)
+  address           String?
+  education         String?      @db.VarChar(30)
+  occupation        String?      @db.VarChar(50)
+  joinDate          DateTime     @default(now()) @map("join_date") @db.Date
+  memberStatus      MemberStatus @default(AKTIF) @map("member_status")
+  role              Role         @default(ANGGOTA)
+  avatarUrl         String?      @map("avatar_url")
+  qrCodeToken       String       @unique @map("qr_code_token")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  announcementsAuthor   Announcement[]       @relation("AnnouncementAuthor")
+  cashCreated             CashTransaction[]    @relation("CashCreator")
+  loansBorrower           FinancialLoan[]      @relation("LoanBorrower")
+    borrowingsRequested     InventoryBorrowing[] @relation("Borrower")
+  loansApprover           FinancialLoan[]      @relation("LoanApprover")
+  borrowingsApproved      InventoryBorrowing[] @relation("BorrowingApprover")
+  eventsCreated           Event[]              @relation("EventCreator")
+  eventAttendances        EventAttendance[]    @relation("AttendanceMember")
+  documentationsUploaded  EventDocumentation[] @relation("DocumentationUploader")
+  documentationsApproved  EventDocumentation[] @relation("DocumentationApprover")
+  reportsCreated          EventReport[]        @relation("ReportCreator")
+  auditLogs               AuditLog[]           @relation("AuditUser")
+  chatMessagesSent        ChatMessage[]        @relation("ChatSender")
+  pollsCreated            Polling[]            @relation("PollingCreator")
+  pollingVotes            PollingVote[]        @relation("PollingVoter")
+
+  @@map("users")
+}
+
+model Announcement {
+  id            String     @id @default(uuid()) @db.Uuid
+  title         String     @db.VarChar(150)
+  content       String
+  attachmentUrl String?    @map("attachment_url")
+  isPinned      Boolean    @default(false) @map("is_pinned")
+  visibility    Visibility @default(PUBLIC)
+  authorId      String?    @map("author_id") @db.Uuid
+  createdAt     DateTime   @default(now()) @map("created_at")
+  author        User?      @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+
+  @@map("announcements")
+}
+
+model CashTransaction {
+  id              String   @id @default(uuid()) @db.Uuid
+  transactionDate DateTime @default(now()) @map("transaction_date") @db.Date
+  type            CashType
+  category        String   @db.VarChar(50)
+  amount          Decimal  @db.Decimal(12, 2)
+  description     String?
+  createdBy       String?  @map("created_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  creator         User?    @relation("CashCreator", fields: [createdBy], references: [id])
+
+  @@map("cash_transactions")
+}
+model InventoryItem {
+  id           String               @id @default(uuid()) @db.Uuid
+  itemCode     String               @unique @map("item_code") @db.VarChar(30)
+  itemName     String               @map("item_name") @db.VarChar(100)
+  totalQty     Int                  @default(1) @map("total_qty")
+  availableQty Int                  @default(1) @map("available_qty")
+  condition    String               @default("Baik") @db.VarChar(50)
+  photoUrl     String?              @map("photo_url")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  borrowings   InventoryBorrowing[]
+
+  @@map("inventory_items")
+}
+
+model InventoryBorrowing {
+  id               String         @id @default(uuid()) @db.Uuid
+  itemId           String         @map("item_id") @db.Uuid
+  borrowerId       String         @map("borrower_id") @db.Uuid
+  qty              Int            @default(1)
+  borrowDate       DateTime       @default(now()) @map("borrow_date") @db.Date
+  returnDate       DateTime?      @map("return_date") @db.Date
+  actualReturnDate DateTime?      @map("actual_return_date") @db.Date
+  purpose          String?
+  status           ApprovalStatus @default(PENDING)
+  approvedBy       String?        @map("approved_by") @db.Uuid
+  createdAt        DateTime       @default(now()) @map("created_at")
+  item             InventoryItem  @relation(fields: [itemId], references: [id])
+  borrower         User           @relation("Borrower", fields: [borrowerId], references: [id])
+  approver         User?          @relation("BorrowingApprover", fields: [approvedBy], references: [id])
+
+  @@map("inventory_borrowings")
+}
+
+model Event {
+  id             String               @id @default(uuid()) @db.Uuid
+  title          String               @db.VarChar(150)
+  description    String?
+  eventDate      DateTime             @map("event_date")
+  location       String               @db.VarChar(100)
+  eventQrToken   String               @unique @map("event_qr_token")
+  visibility     Visibility           @default(INTERNAL)
+  createdBy      String?              @map("created_by") @db.Uuid
+  createdAt      DateTime             @default(now()) @map("created_at")
+  creator        User?                @relation("EventCreator", fields: [createdBy], references: [id])
+  attendances    EventAttendance[]
+  documentations EventDocumentation[]
+  report         EventReport?
+  chatMessages   ChatMessage[]
+
+  @@map("events")
+}
+
+model EventAttendance {
+  id         String   @id @default(uuid()) @db.Uuid
+  eventId    String   @map("event_id") @db.Uuid
+  memberId   String   @map("member_id") @db.Uuid
+  scannedAt  DateTime @default(now()) @map("scanned_at")
+  scanMethod String   @default("SELF_SCAN") @map("scan_method") @db.VarChar(20)
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  member     User     @relation("AttendanceMember", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, memberId])
+  @@map("event_attendances")
+}
+
+model EventDocumentation {
+  id              String         @id @default(uuid()) @db.Uuid
+  eventId         String         @map("event_id") @db.Uuid
+  uploaderId      String?        @map("uploader_id") @db.Uuid
+  photoUrlHd      String         @map("photo_url_hd")
+  photoUrlThumb   String         @map("photo_url_thumb")
+  caption         String?
+  status          ApprovalStatus @default(PENDING)
+  rejectionReason String?        @map("rejection_reason")
+  approvedBy      String?        @map("approved_by") @db.Uuid
+  createdAt       DateTime       @default(now()) @map("created_at")
+  event           Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  uploader        User?          @relation("DocumentationUploader", fields: [uploaderId], references: [id])
+  approver        User?          @relation("DocumentationApprover", fields: [approvedBy], references: [id])
+
+  @@map("event_documentations")
+}
+
+model EventReport {
+  id         String   @id @default(uuid()) @db.Uuid
+  eventId    String   @unique @map("event_id") @db.Uuid
+  notlenText String   @map("notlen_text")
+  createdBy  String?  @map("created_by") @db.Uuid
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  creator    User?    @relation("ReportCreator", fields: [createdBy], references: [id])
+
+  @@map("event_reports")
+}
+
+
+model FinancialLoan {
+  id          String   @id @default(uuid()) @db.Uuid
+  borrowerId  String   @map("borrower_id") @db.Uuid
+  amount      Decimal  @db.Decimal(12,2)
+  loanDate    DateTime @default(now()) @map("loan_date")
+  dueDate     DateTime? @map("due_date")
+  notes       String?  @db.Text
+  status      String   @default("PENDING")
+  isSettled   Boolean  @default(false)
+  settledAt   DateTime? @map("settled_at")
+  approvedBy  String?   @map("approved_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  borrower    User @relation("LoanBorrower", fields: [borrowerId], references: [id])
+  approver    User? @relation("LoanApprover", fields: [approvedBy], references: [id])
+  payments    LoanPayment[]
+
+  @@map("financial_loans")
+}
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String   @db.VarChar(100)
+  details   String?
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User?    @relation("AuditUser", fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid()) @db.Uuid
+  eventId        String?  @map("event_id") @db.Uuid
+  senderId       String   @map("sender_id") @db.Uuid
+  message        String
+  attachmentUrl  String?  @map("attachment_url")
+  createdAt      DateTime @default(now()) @map("created_at")
+  event          Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sender         User     @relation("ChatSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, createdAt])
+  @@map("chat_messages")
+}
+
+model Polling {
+  id          String          @id @default(uuid()) @db.Uuid
+  title       String          @db.VarChar(150)
+  description String?
+  isActive    Boolean         @default(true) @map("is_active")
+  createdBy   String?         @map("created_by") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at")
+  creator     User?           @relation("PollingCreator", fields: [createdBy], references: [id])
+  options     PollingOption[]
+  votes       PollingVote[]
+
+  @@map("pollings")
+}
+
+model PollingOption {
+  id         String        @id @default(uuid()) @db.Uuid
+  pollingId  String        @map("polling_id") @db.Uuid
+  optionText String        @map("option_text") @db.VarChar(100)
+  polling    Polling       @relation(fields: [pollingId], references: [id], onDelete: Cascade)
+  votes      PollingVote[]
+
+  @@map("polling_options")
+}
+
+model PollingVote {
+  id        String        @id @default(uuid()) @db.Uuid
+  pollingId String        @map("polling_id") @db.Uuid
+  optionId  String        @map("option_id") @db.Uuid
+  voterId   String        @map("voter_id") @db.Uuid
+  createdAt DateTime      @default(now()) @map("created_at")
+  polling   Polling       @relation(fields: [pollingId], references: [id], onDelete: Cascade)
+  option    PollingOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  voter     User          @relation("PollingVoter", fields: [voterId], references: [id], onDelete: Cascade)
+
+  @@unique([pollingId, voterId])
+  @@map("polling_votes")
+}
+
+
+model LoanPayment {
+  id        String   @id @default(uuid()) @db.Uuid
+  loanId    String   @map("loan_id") @db.Uuid
+  amount    Decimal  @db.Decimal(12,2)
+  paidAt    DateTime @default(now()) @map("paid_at")
+  notes     String?  @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  loan      FinancialLoan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@map("loan_payments")
+}
+
+

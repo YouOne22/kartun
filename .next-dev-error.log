@@ -1,0 +1,128 @@
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\User\Desktop\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\User\Desktop\tunas-harapan\package-lock.json
+
+Login error Error [PrismaClientInitializationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at <unknown> (src\app\api\auth\login\route.ts:24:27)
+    at async POST (src\app\api\auth\login\route.ts:24:9)
+  22 |     const user = looksLikePhoneNumber(identifier)
+  23 |       ? await prisma.user.findFirst({ where: { phoneWa: { in: phoneNumberVariants(identifier) } } })
+> 24 |       : await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+     |                           ^
+  25 |
+  26 |     if (!user || user.memberStatus !== "AKTIF" || !(await compare(password, user.passwordHash))) {
+  27 |       return NextResponse.json({ message: "Email/nomor telepon atau password tidak valid." }, { status: 401 }); {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+Login error Error [PrismaClientInitializationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at <unknown> (src\app\api\auth\login\route.ts:24:27)
+    at async POST (src\app\api\auth\login\route.ts:24:9)
+  22 |     const user = looksLikePhoneNumber(identifier)
+  23 |       ? await prisma.user.findFirst({ where: { phoneWa: { in: phoneNumberVariants(identifier) } } })
+> 24 |       : await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+     |                           ^
+  25 |
+  26 |     if (!user || user.memberStatus !== "AKTIF" || !(await compare(password, user.passwordHash))) {
+  27 |       return NextResponse.json({ message: "Email/nomor telepon atau password tidak valid." }, { status: 401 }); {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+Login error Error [PrismaClientInitializationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at <unknown> (src\app\api\auth\login\route.ts:24:27)
+    at async POST (src\app\api\auth\login\route.ts:24:9)
+  22 |     const user = looksLikePhoneNumber(identifier)
+  23 |       ? await prisma.user.findFirst({ where: { phoneWa: { in: phoneNumberVariants(identifier) } } })
+> 24 |       : await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+     |                           ^
+  25 |
+  26 |     if (!user || user.memberStatus !== "AKTIF" || !(await compare(password, user.passwordHash))) {
+  27 |       return NextResponse.json({ message: "Email/nomor telepon atau password tidak valid." }, { status: 401 }); {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+Login error Error [PrismaClientInitializationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at <unknown> (src\app\api\auth\login\route.ts:24:27)
+    at async POST (src\app\api\auth\login\route.ts:24:9)
+  22 |     const user = looksLikePhoneNumber(identifier)
+  23 |       ? await prisma.user.findFirst({ where: { phoneWa: { in: phoneNumberVariants(identifier) } } })
+> 24 |       : await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+     |                           ^
+  25 |
+  26 |     if (!user || user.memberStatus !== "AKTIF" || !(await compare(password, user.passwordHash))) {
+  27 |       return NextResponse.json({ message: "Email/nomor telepon atau password tidak valid." }, { status: 401 }); {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+Login error Error [PrismaClientInitializationError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique()` invocation in
+C:\Users\User\Desktop\tunas-harapan\.next\dev\server\chunks\[root-of-the-server]__1065v7x._.js:104:174
+
+  101             in: (0, __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$phone$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["phoneNumberVariants"])(identifier)
+  102         }
+  103     }
+→ 104 }) : await __TURBOPACK__imported__module__$5b$project$5d2f$tunas$2d$harapan$2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].user.findUnique(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at <unknown> (src\app\api\auth\login\route.ts:24:27)
+    at async POST (src\app\api\auth\login\route.ts:24:9)
+  22 |     const user = looksLikePhoneNumber(identifier)
+  23 |       ? await prisma.user.findFirst({ where: { phoneWa: { in: phoneNumberVariants(identifier) } } })
+> 24 |       : await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+     |                           ^
+  25 |
+  26 |     if (!user || user.memberStatus !== "AKTIF" || !(await compare(password, user.passwordHash))) {
+  27 |       return NextResponse.json({ message: "Email/nomor telepon atau password tidak valid." }, { status: 401 }); {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+^C
