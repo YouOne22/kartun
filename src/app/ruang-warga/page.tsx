@@ -65,6 +65,11 @@ export default function CommunityPage() {
     }; 
   }, []);
 
+  /* tandai semua pesan sudah dibaca */
+  useEffect(() => {
+    if (messages.length > 0) localStorage.setItem("th_seen_messages", new Date().toISOString());
+  }, [messages]);
+
   async function sendMessage(event: FormEvent) { 
     event.preventDefault(); 
     if (!message.trim()) return; 

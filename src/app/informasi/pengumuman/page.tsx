@@ -49,6 +49,11 @@ export default function AnnouncementsPage() {
     return () => { active = false; window.clearTimeout(timer); };
   }, []);
 
+  /* tandai semua pengumuman sudah dibaca */
+  useEffect(() => {
+    if (announcements.length > 0) localStorage.setItem("th_seen_announcements", new Date().toISOString());
+  }, [announcements]);
+
   async function saveAnnouncement(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const url = "/api/announcements";

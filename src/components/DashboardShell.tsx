@@ -59,6 +59,8 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [announcementCount, setAnnouncementCount] = useState(0);
+  const [chatCount, setChatCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/auth/session").then(async (response) => {
@@ -69,6 +71,28 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
       setLoading(false);
     }).catch(() => router.replace("/login"));
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/announcements").then(async (r) => {
+      if (r.ok) {
+        const d = await r.json() as { announcements?: { createdAt: string }[] };
+        const last = localStorage.getItem("th_seen_announcements");
+        const lastTs = last ? new Date(last).getTime() : 0;
+        const unread = (d.announcements ?? []).filter((a) => new Date(a.createdAt).getTime() > lastTs);
+        setAnnouncementCount(unread.length);
+      }
+    }).catch(() => {});
+    fetch("/api/chat").then(async (r) => {
+      if (r.ok) {
+        const d = await r.json() as { messages?: { createdAt: string }[] };
+        const last = localStorage.getItem("th_seen_messages");
+        const lastTs = last ? new Date(last).getTime() : 0;
+        const unread = (d.messages ?? []).filter((m) => new Date(m.createdAt).getTime() > lastTs);
+        setChatCount(unread.length);
+      }
+    }).catch(() => {});
+  }, [user]);
 
   async function logout() { await fetch("/api/auth/logout", { method: "POST" }); router.replace("/login"); }
   async function copyToken() { if (!user?.qrCodeToken) return; await navigator.clipboard.writeText(user.qrCodeToken); await showSuccess("Token QR disalin."); }
@@ -147,7 +171,10 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
       <div className="flex min-w-0 flex-1 flex-col md:pl-[270px]">
         <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3"><button aria-label="Buka menu" onClick={() => setOpen(true)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"><Menu size={20} /></button><div className="flex min-w-0 items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F766E] font-bold text-white">TH</div><div className="min-w-0"><p className="truncate text-sm font-bold tracking-tight sm:text-base">TUNAS HARAPAN</p><p className="text-[11px] text-slate-500">Dusun Kemitir</p></div></div><h1 className="sr-only">{title}</h1></div>
-          <div className="flex shrink-0 items-center gap-3"><span className="hidden text-xs text-slate-500 sm:block">{user?.memberId}</span><button onClick={logout} className="flex items-center gap-2 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50"><LogOut aria-hidden="true" size={15} /> <span className="hidden sm:inline">Keluar Sistem</span></button></div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Link href="/informasi/pengumuman" aria-label="Notifikasi" className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"><Bell size={20} />{announcementCount > 0 && <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{announcementCount > 99 ? "99+" : announcementCount}</span>}</Link>
+            <Link href="/ruang-warga" aria-label="Pesan" className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"><MessageSquare size={20} />{chatCount > 0 && <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{chatCount > 99 ? "99+" : chatCount}</span>}</Link>
+          </div>
         </header>
         <main className="mx-auto w-full max-w-[1600px] flex-1 p-4 sm:p-6">{children}</main>
       {/* Profil Lengkap Modal */}
