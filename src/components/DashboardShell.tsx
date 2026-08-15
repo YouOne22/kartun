@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { CalendarDays, Copy, FileText, Home, IdCard, LogOut, Menu, MessageCircle, Package, QrCode, Users, Wallet, X, Bell, Search, Image as ImageIcon, Megaphone } from "lucide-react";
+import { CalendarDays, Camera, Copy, FileText, Home, IdCard, LogOut, Menu, MessageCircle, MessageSquare, Package, QrCode, Users, Wallet, X, Bell, Search, Image as ImageIcon, Megaphone, ChevronDown } from "lucide-react";
 import { showSuccess } from "@/components/AlertProvider";
 import { QRCodeSVG } from "qrcode.react";
+import ChatWidget from "@/components/ChatWidget";
 
 export type SessionUser = {
   id: string;
@@ -38,20 +39,17 @@ const navigation: NavigationItem[] = [
   { href: "/keuangan/pinjaman", label: "Pinjaman", icon: Wallet, roles: ["KETUA", "SEKRETARIS", "BENDAHARA"] },
   { href: "/inventaris/data-barang", label: "Inventaris", icon: Package },
   { href: "/kegiatan/agenda", label: "Kegiatan", icon: CalendarDays },
+  { href: "/kegiatan/scan-qr", label: "Scan QRCode", icon: Camera },
   { href: "/kegiatan/dokumentasi", label: "Galeri", icon: ImageIcon },
   { href: "/kegiatan/laporan", label: "Laporan", icon: FileText },
   { href: "/informasi/pengumuman", label: "Pengumuman", icon: Megaphone },
+  { href: "/kritik-saran", label: "Kritik & Saran", icon: MessageSquare },
   { href: "/ruang-warga", label: "Ruang Warga", icon: MessageCircle },
 ];
 
 const initials = (value: string) => value.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "?";
+const roleLabels: Record<SessionUser["role"], string> = { KETUA: "Ketua Karang Taruna", SEKRETARIS: "Sekretaris Karang Taruna", BENDAHARA: "Bendahara Karang Taruna", ANGGOTA: "Anggota Karang Taruna" };
 
-const roleLabels: Record<SessionUser["role"], string> = {
-  KETUA: "Ketua",
-  SEKRETARIS: "Sekretaris",
-  BENDAHARA: "Bendahara",
-  ANGGOTA: "Anggota",
-};
 
 export function DashboardShell({ children, title }: { children: ReactNode; title: string }) {
   const router = useRouter();
@@ -80,16 +78,16 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-[#0F172A]">
       {open && <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="fixed inset-0 z-30 bg-slate-900/30 md:hidden" />}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[270px] flex-col border-r border-slate-200 bg-white p-4 shadow-xl transition-transform md:translate-x-0 md:shadow-none ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[270px] flex-col border-r border-teal-950 bg-[#073833] p-4 transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mb-6 flex items-center justify-between gap-3 px-2 py-1">
             <button type="button" onClick={() => setProfileOpen(true)} className="flex min-w-0 items-center gap-3 text-left group">
-              {user?.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} onError={() => setAvatarFailed(true)} className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#0F766E]" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-sm font-bold text-white ring-2 ring-transparent group-hover:ring-teal-800">{user && initials(user.fullName)}</div>}
-              <div className="min-w-0"><p className="truncate text-sm font-bold group-hover:text-[#0F766E]">{user?.fullName}</p><p className="mt-0.5 text-xs text-slate-500">{user && roleLabels[user.role]}</p></div>
+              {user?.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} onError={() => setAvatarFailed(true)} className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#0F766E]" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-sm font-bold text-white ring-2 ring-transparent group-hover:ring-[#0F766E]">{user && initials(user.fullName)}</div>}
+              <div className="min-w-0"><p className="truncate text-sm font-bold text-teal-50 group-hover:text-[#0F766E]">{user?.fullName}</p><p className="mt-0.5 text-xs text-teal-300/70">{user && roleLabels[user.role]}</p></div>
             </button>
-            <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 md:hidden"><X size={19} /></button>
+            <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-teal-300/70 hover:bg-[#0F766E]/10 md:hidden"><X size={19} /></button>
           </div>
-          <nav aria-label="Navigasi utama" className="space-y-1">{visibleNavigation.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <Link onClick={() => setOpen(false)} key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-[#0F766E]/10 font-semibold text-[#0F766E]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}><Icon aria-hidden="true" size={17} strokeWidth={active ? 2.25 : 2} />{item.label}</Link>; })}</nav>
+          <nav aria-label="Navigasi utama" className="space-y-1">{visibleNavigation.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <Link onClick={() => setOpen(false)} key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-[#0F766E]/20 font-semibold text-teal-100" : "text-teal-100/60 hover:bg-[#0F766E]/10 hover:text-teal-50"}`}><Icon aria-hidden="true" size={17} strokeWidth={active ? 2.25 : 2} />{item.label}</Link>; })}</nav>
         </div>
       {/* Profil Lengkap Modal */}
       {profileOpen && user && (
@@ -143,7 +141,7 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
         </div>
       )}
 
-        <div className="mt-4 border-t border-slate-200 pt-4"><p className="truncate px-2 text-[11px] text-slate-500">ID Anggota: {user?.memberId}</p></div>
+        <div className="mt-4 border-t border-teal-900 pt-4"><p className="truncate px-2 text-[11px] text-teal-300/70">ID Anggota: {user?.memberId}</p></div>
 
       </aside>
       <div className="flex min-w-0 flex-1 flex-col md:pl-[270px]">
@@ -229,3 +227,4 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
     </div>
   );
 }
+

@@ -51,6 +51,13 @@ enum CashType {
   @@map("cash_type_enum")
 }
 
+enum CashSource {
+  INDUK
+  JIMPITAN
+
+  @@map("cash_source_enum")
+}
+
 model User {
   id                String       @id @default(uuid()) @db.Uuid
   memberId          String       @unique @map("member_id") @db.VarChar(30)
@@ -92,6 +99,7 @@ model User {
   pollsCreated            Polling[]            @relation("PollingCreator")
   pollingVotes            PollingVote[]        @relation("PollingVoter")
 
+  suggestions             Suggestion[]         @relation("UserSuggestions")
   @@map("users")
 }
 
@@ -113,6 +121,7 @@ model CashTransaction {
   id              String   @id @default(uuid()) @db.Uuid
   transactionDate DateTime @default(now()) @map("transaction_date") @db.Date
   type            CashType
+  sumberKas       CashSource @default(INDUK) @map("sumber_kas")
   category        String   @db.VarChar(50)
   amount          Decimal  @db.Decimal(12, 2)
   description     String?
@@ -301,6 +310,19 @@ model PollingVote {
   @@unique([pollingId, voterId])
   @@map("polling_votes")
 }
+
+model Suggestion {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  isAnonymous Boolean @default(false) @map("is_anonymous")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation("UserSuggestions", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("suggestions")
+}
+
 
 
 model LoanPayment {

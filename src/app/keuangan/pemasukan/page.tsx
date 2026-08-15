@@ -10,10 +10,11 @@ import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import ResponsiveTable from "@/components/ResponsiveTable";
 
-type Transaction = { id: string; transactionDate: string; type: "INCOME" | "EXPENSE"; amount: number | string; category: string; description: string | null; creator: { fullName: string } | null };
-type FinanceData = { transactions: Transaction[]; summary: { income: number; expense: number; balance: number } };
+type Transaction = { id: string; transactionDate: string; type: "INCOME" | "EXPENSE"; sumberKas: "INDUK" | "JIMPITAN"; amount: number | string; category: string; description: string | null; creator: { fullName: string } | null };
+type FinanceData = { transactions: Transaction[]; summary: { income: number; expense: number; balance: number; induk: { income: number; expense: number; balance: number }; jimpitan: { income: number; expense: number; balance: number }; gabungan: { income: number; expense: number; balance: number } } };
 const money = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" });
+const sumberKasLabel: Record<"INDUK" | "JIMPITAN", string> = { INDUK: "Kas Induk", JIMPITAN: "Kas Jimpitan" };
 
 export default function FinancePage() {
   const [data, setData] = useState<FinanceData | null>(null);
@@ -22,10 +23,13 @@ export default function FinancePage() {
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ type: "INCOME" as "INCOME" | "EXPENSE", category: "", amount: "", description: "" });
+      const [form, setForm] = useState({ type: "INCOME" as "INCOME" | "EXPENSE", sumberKas: "INDUK" as "INDUK" | "JIMPITAN", category: "", amount: "", description: "" });
+  const [sumberFilter, setSumberFilter] = useState<"ALL" | "INDUK" | "JIMPITAN">("ALL");
 
   async function loadData() {
-    const [financeResponse, sessionResponse] = await Promise.all([fetch("/api/finance"), fetch("/api/auth/session")]);
+    const params = new URLSearchParams();
+    if (sumberFilter !== "ALL") params.set("sumberKas", sumberFilter);
+    const [financeResponse, sessionResponse] = await Promise.all([fetch(`/api/finance?${params.toString()}`), fetch("/api/auth/session")]);
     const financeJson = await financeResponse.json() as FinanceData & { message?: string };
     const sessionJson = await sessionResponse.json() as { user?: SessionUser };
     if (!financeResponse.ok) throw new Error(financeJson.message || "Data kas gagal dimuat.");
@@ -34,11 +38,9 @@ export default function FinancePage() {
 
   useEffect(() => {
     let active = true;
-    const timer = window.setTimeout(() => {
-      loadData().catch((error: Error) => { if (active) setMessage(error.message); }).finally(() => { if (active) setLoading(false); });
-    }, 0);
-    return () => { active = false; window.clearTimeout(timer); };
-  }, []);
+    loadData().catch((error: Error) => { if (active) setMessage(error.message); }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [sumberFilter]);
 
   async function saveTransaction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage("");
@@ -50,8 +52,8 @@ export default function FinancePage() {
 
     const response = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const result = await response.json() as { message?: string };
-    if (!response.ok) return showError(result.message || "Transaksi kas gagal disimpan.");
-    setForm({ type: "INCOME", category: "", amount: "", description: "" });
+        if (!response.ok) return showError(result.message || "Transaksi kas gagal disimpan.");
+    setForm({ type: "INCOME", sumberKas: "INDUK", category: "", amount: "", description: "" });
     setEditingId(null);
     setIsModalOpen(false);
     await loadData();
@@ -72,6 +74,7 @@ export default function FinancePage() {
 
   const columns = [
     { key: "date", header: "Tanggal", render: (t: Transaction) => dateFormat.format(new Date(t.transactionDate)) },
+    { key: "sumber", header: "Sumber Kas", render: (t: Transaction) => <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${t.sumberKas === "INDUK" ? "bg-teal-100 text-teal-800" : "bg-indigo-100 text-indigo-800"}`}>{sumberKasLabel[t.sumberKas]}</span> },
     { key: "type", header: "Jenis", render: (t: Transaction) => <span className={`font-semibold ${t.type === "INCOME" ? "text-emerald-600" : "text-red-600"}`}>{t.type === "INCOME" ? "Pemasukan" : "Pengeluaran"}</span> },
     { key: "category", header: "Kategori", render: (t: Transaction) => t.category },
     { key: "amount", header: "Nominal", render: (t: Transaction) => <span className="font-semibold">{money.format(Number(t.amount))}</span> },
@@ -86,9 +89,10 @@ export default function FinancePage() {
             <button
               title="Edit Transaksi"
               onClick={() => {
-                setEditingId(t.id);
+                                setEditingId(t.id);
                 setForm({
                   type: t.type,
+                  sumberKas: t.sumberKas,
                   category: t.category,
                   amount: String(t.amount),
                   description: t.description || ""
@@ -120,17 +124,25 @@ export default function FinancePage() {
             <p className="text-sm text-slate-500">Pencatatan pemasukan, pengeluaran, dan saldo kas organisasi.</p>
           </div>
           {canManage && (
-            <Button onClick={() => { setEditingId(null); setForm({ type: "INCOME", category: "", amount: "", description: "" }); setIsModalOpen(true); }}>
+                        <Button onClick={() => { setEditingId(null); setForm({ type: "INCOME", sumberKas: "INDUK", category: "", amount: "", description: "" }); setIsModalOpen(true); }}>
               <Plus size={17} /> Tambah Transaksi
             </Button>
           )}
         </div>
-        {message && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{message}</div>}
+                {message && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{message}</div>}
+
+        <div className="flex gap-2 overflow-x-auto pb-1 text-sm font-medium">
+          {[{ id: "ALL", label: "Semua Kas", bg: "bg-slate-200 text-slate-700" }, { id: "INDUK", label: "Kas Induk", bg: "bg-teal-100 text-teal-800" }, { id: "JIMPITAN", label: "Kas Jimpitan", bg: "bg-indigo-100 text-indigo-800" }].map((tab) => (
+              <button key={tab.id} onClick={() => setSumberFilter(tab.id as "ALL" | "INDUK" | "JIMPITAN")} className={`rounded-full px-4 py-1.5 whitespace-nowrap ${sumberFilter === tab.id ? tab.bg.replace("bg-", "bg-opacity-100 ") : "bg-slate-100 text-slate-500"}`}>{tab.label}</button>
+          ))}
+        </div>
 
         <section className="grid gap-4 sm:grid-cols-3">
-          <StatCard title="Total Pemasukan" value={loading ? "-" : money.format(data?.summary.income || 0)} icon={<ArrowUpCircle size={19} />} bgColor="#059669" />
-          <StatCard title="Total Pengeluaran" value={loading ? "-" : money.format(data?.summary.expense || 0)} icon={<ArrowDownCircle size={19} />} bgColor="#dc2626" />
-          <StatCard title="Saldo Kas" value={loading ? "-" : money.format(data?.summary.balance || 0)} icon={<Wallet size={19} />} bgColor="#0F766E" />
+          {(() => { const s = loading ? null : sumberFilter === "INDUK" ? data?.summary.induk : sumberFilter === "JIMPITAN" ? data?.summary.jimpitan : data?.summary.gabungan; return (<>
+            <StatCard title="Total Pemasukan" value={loading ? "-" : money.format(s?.income || 0)} icon={<ArrowUpCircle size={19} />} bgColor="#059669" />
+            <StatCard title="Total Pengeluaran" value={loading ? "-" : money.format(s?.expense || 0)} icon={<ArrowDownCircle size={19} />} bgColor="#dc2626" />
+            <StatCard title="Saldo Kas" value={loading ? "-" : money.format(s?.balance || 0)} icon={<Wallet size={19} />} bgColor="#0F766E" />
+          </>); })()}
         </section>
 
         <section className="rounded-2xl border border-white/70 bg-white/85 p-5 shadow-sm">
@@ -155,6 +167,12 @@ export default function FinancePage() {
           size="md"
         >
           <form onSubmit={saveTransaction} className="space-y-4">
+            <Field label="Sumber Kas">
+              <select required value={form.sumberKas} onChange={(event) => setForm({ ...form, sumberKas: event.target.value as "INDUK" | "JIMPITAN" })} className="field">
+                <option value="INDUK">Kas Induk</option>
+                <option value="JIMPITAN">Kas Jimpitan</option>
+              </select>
+            </Field>
             <Field label="Jenis Transaksi">
               <select required value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as "INCOME" | "EXPENSE" })} className="field">
                 <option value="INCOME">Pemasukan</option>

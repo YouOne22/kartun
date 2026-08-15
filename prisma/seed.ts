@@ -1,12 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { hash } from "bcryptjs";
 import { PrismaClient, Gender, Role } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   const defaultPassword = process.env.DEFAULT_PASSWORD ?? "Dusun2026";
@@ -42,5 +38,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-    await pool.end();
   });

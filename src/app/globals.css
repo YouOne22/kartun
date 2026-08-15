@@ -1,47 +1,59 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-light: #ECFDF5;
+  --primary-soft: #D1FAE5;
+  --accent-orange: #F97316;
+  --accent-yellow: #F59E0B;
+  --accent-blue: #3B82F6;
+  --accent-purple: #8B5CF6;
+  --surface: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+  --border-soft: #EEF2F7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --spacing-4: 1rem; /* 16px */
-    --spacing-5: 1.25rem; /* 20px */
-    --icon-size: 1rem; /* 16px */
-  }
-
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-purple: var(--accent-purple);
+  --color-surface: var(--surface);
+  --color-border-custom: var(--border);
+  --font-sans: Inter, "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .field {
   width: 100%;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  background: white;
-  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
   outline: none;
+  transition: all 0.15s ease;
 }
 
 .field:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 2px rgb(20 184 166 / 0.18);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(5 150 105 / 0.12);
 }
+
