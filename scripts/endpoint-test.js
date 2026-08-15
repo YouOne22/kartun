@@ -1,0 +1,54 @@
+const http = require("http");
+// no cookie module
+
+function request(method, path, body, cookieHeader) {
+  return new Promise((resolve, reject) => {
+    const bodyData = body ? JSON.stringify(body) : null;
+    const opts = {
+      hostname: "localhost", port: 3000, path, method,
+      headers: Object.assign(
+        { "Content-Type": "application/json" },
+        cookieHeader ? { Cookie: cookieHeader } : {},
+        bodyData ? { "Content-Length": Buffer.byteLength(bodyData) } : {}
+      ),
+    };
+    const req = http.request(opts, (res) => {
+      let data = "";
+      res.on("data", c => data += c);
+      res.on("end", () => {
+        const setCookie = res.headers["set-cookie"];
+        let cookies = "";
+        if (setCookie) cookies = setCookie.map(c => c.split(";")[0]).join("; ");
+        resolve({ status: res.statusCode, body: data, cookies });
+      });
+    });
+    req.on("error", reject);
+    if (bodyData) req.write(bodyData);
+    req.end();
+  });
+}
+
+(async () => {
+  try {
+    // 1. Login
+    const loginRes = await request("POST", "/api/auth/login", { email: "ketua@tunasharapan.id", password: "Dusun2026" });
+    console.log("LOGIN:", loginRes.status, loginRes.body.slice(0, 200));
+    const sessionCookie = loginRes.cookies;
+
+    if (loginRes.status !== 200) {
+      console.log("Login failed, cannot test dashboard");
+      process.exit(1);
+    }
+
+    // 2. Dashboard
+    const dashRes = await request("GET", "/api/dashboard", null, sessionCookie);
+    console.log("DASHBOARD:", dashRes.status, dashRes.body.slice(0, 800));
+
+    // 3. Finance POST
+    const financeRes = await request("POST", "/api/finance", { type: "INCOME", sumberKas: "INDUK", category: "Test", amount: 10000, description: "Test entry" }, sessionCookie);
+    console.log("FINANCE POST:", financeRes.status, financeRes.body.slice(0, 800));
+  } catch (err) {
+    console.error("ERROR:", err.message);
+    process.exit(1);
+  }
+})();

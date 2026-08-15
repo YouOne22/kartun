@@ -1,0 +1,50 @@
+
+> tunas-harapan@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.0 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://100.69.221.26:3000
+- Environments: .env
+✓ Ready in 1072ms
+⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.ts options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+⚠ Warning: Next.js ignored package-lock.json in C:\Users\User\Desktop because it is outside the current Git repository (C:\Users\User\Desktop\tunas-harapan).
+ To use this directory, set `turbopack.root` in your Next.js config.
+
+✓ Running next.config.ts took 117ms
+
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+(node:11136) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ POST /api/auth/login 401 in 4.0s (next.js: 363ms, application-code: 3.6s)
+ GET /api/dashboard 401 in 65ms (next.js: 54ms, application-code: 12ms)
+ GET /api/finance 401 in 63ms (next.js: 53ms, application-code: 10ms)
+ POST /api/finance 401 in 14ms (next.js: 3ms, application-code: 11ms)
+ GET /api/auth/session 401 in 59ms (next.js: 48ms, application-code: 11ms)
+Login error Error: AUTH_SECRET harus diatur dan memiliki minimal 32 karakter.
+    at getAuthSecret (src\lib\auth.ts:17:11)
+    at createSession (src\lib\auth.ts:32:11)
+    at POST (src\app\api\auth\login\route.ts:30:38)
+  15 |   const secret = process.env.AUTH_SECRET;
+  16 |   if (!secret || secret.length < 32) {
+> 17 |     throw new Error("AUTH_SECRET harus diatur dan memiliki minimal 32 karakter.");
+     |           ^
+  18 |   }
+  19 |   return new TextEncoder().encode(secret);
+  20 | }
+ POST /api/auth/login 500 in 4.5s (next.js: 9ms, application-code: 4.5s)
+ GET /api/dashboard 401 in 27ms (next.js: 5ms, application-code: 21ms)
+ GET /api/finance 401 in 16ms (next.js: 6ms, application-code: 10ms)
+ POST /api/finance 401 in 19ms (next.js: 5ms, application-code: 15ms)
+ GET /api/auth/session 401 in 8ms (next.js: 3ms, application-code: 5ms)
+  Reload env: .env

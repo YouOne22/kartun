@@ -24,7 +24,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: "ketua@tunasharapan.id" },
-    update: {},
+         update: { passwordHash, isDefaultPassword: true },
     create: {
       memberId: "KT-TH-2026-001",
       fullName: "Ketua Karang Taruna",

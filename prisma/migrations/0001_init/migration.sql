@@ -16,6 +16,10 @@ CREATE TYPE "visibility_enum" AS ENUM ('PUBLIC', 'INTERNAL');
 -- CreateEnum
 CREATE TYPE "cash_type_enum" AS ENUM ('INCOME', 'EXPENSE');
 
+-- CreateEnum
+CREATE TYPE "cash_source_enum" AS ENUM ('INDUK', 'JIMPITAN');
+
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL,
@@ -65,6 +69,7 @@ CREATE TABLE "cash_transactions" (
     "id" UUID NOT NULL,
     "transaction_date" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "type" "cash_type_enum" NOT NULL,
+    "sumber_kas" "cash_source_enum" NOT NULL DEFAULT 'INDUK',
     "category" VARCHAR(50) NOT NULL,
     "amount" DECIMAL(12,2) NOT NULL,
     "description" TEXT,
