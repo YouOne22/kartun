@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { put, del } from "@vercel/blob";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -77,7 +76,8 @@ export async function GET(request: Request) {
       ? await prisma.user.findMany({ where: { id: auth.session.userId }, select: memberSelect })
       : await prisma.user.findMany({ select: memberSelect, orderBy: { fullName: "asc" } });
     return NextResponse.json({ members });
-  } catch {
+  } catch (error: any) {
+    console.error("GET Members Error:", error);
     return errorResponse("Data anggota belum tersedia.", 503);
   }
 }
@@ -93,13 +93,15 @@ export async function PATCH(request: Request) {
   if (contentType.includes("multipart/form-data")) {
     try {
       formData = await request.formData();
-    } catch {
+    } catch (err) {
+      console.error("PATCH FormData Parse Error:", err);
       return errorResponse("Format data tidak valid.");
     }
   } else {
     try {
       jsonBody = (await request.json()) as Record<string, unknown>;
-    } catch {
+    } catch (err) {
+      console.error("PATCH JSON Parse Error:", err);
       return errorResponse("Format data tidak valid.");
     }
   }
@@ -141,6 +143,9 @@ export async function PATCH(request: Request) {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return errorResponse("Format email tidak valid.");
   }
+  if (birthDate === undefined || joinDate === undefined) {
+    return errorResponse("Format tanggal tidak valid.");
+  }
 
   let role = existing.role;
   let memberStatus = existing.memberStatus;
@@ -154,9 +159,6 @@ export async function PATCH(request: Request) {
     }
   }
 
-  if (avatar !== null && avatar !== undefined && !(avatar instanceof File) && typeof avatar !== "string") {
-    return errorResponse("File foto profil tidak valid.");
-  }
   if (avatar instanceof File && avatar.size > 0) {
     if (!allowedAvatarTypes.has(avatar.type) || avatar.size > MAX_AVATAR_SIZE) {
       return errorResponse("Foto profil harus berupa JPG, PNG, WebP, atau GIF maksimal 5 MB.");
@@ -164,20 +166,17 @@ export async function PATCH(request: Request) {
   }
 
   let newAvatarUrl: string | null | undefined = undefined;
-  let newAvatarPath: string | null = null;
 
   try {
     if (avatar instanceof File && avatar.size > 0) {
-      const uploadDirectory = path.join(process.cwd(), "public", "uploads", "members");
-      const filename = `${randomUUID()}.${avatarExtensions[avatar.type]}`;
-      newAvatarPath = path.join(uploadDirectory, filename);
-      await mkdir(uploadDirectory, { recursive: true });
-      await writeFile(newAvatarPath, Buffer.from(await avatar.arrayBuffer()));
-      newAvatarUrl = `/uploads/members/${filename}`;
+      const extension = avatarExtensions[avatar.type] || "jpg";
+      const filename = `members/${randomUUID()}.${extension}`;
+      
+      const blob = await put(filename, avatar, { access: "public" });
+      newAvatarUrl = blob.url;
 
-      if (existing.avatarUrl && existing.avatarUrl.startsWith("/uploads/members/")) {
-        const oldPath = path.join(process.cwd(), "public", existing.avatarUrl);
-        await unlink(oldPath).catch(() => undefined);
+      if (existing.avatarUrl && existing.avatarUrl.includes("vercel-storage.com")) {
+        await del(existing.avatarUrl).catch(() => undefined);
       }
     }
 
@@ -189,14 +188,14 @@ export async function PATCH(request: Request) {
         phoneWa,
         gender,
         birthPlace,
-        ...(birthDate ? { birthDate } : {}),
+        ...(birthDate !== undefined ? { birthDate } : {}),
         dusun,
         ...(rt ? { rt } : {}),
         ...(rw ? { rw } : {}),
         address,
         education,
         occupation,
-        ...(joinDate ? { joinDate } : {}),
+        ...(joinDate !== undefined ? { joinDate } : {}),
         role,
         memberStatus,
         ...(newAvatarUrl !== undefined ? { avatarUrl: newAvatarUrl } : {}),
@@ -205,9 +204,10 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json({ member: updated });
-  } catch {
-    if (newAvatarPath) await unlink(newAvatarPath).catch(() => undefined);
-    return errorResponse("Profil anggota gagal diperbarui. Email mungkin sudah digunakan.", 400);
+  } catch (error: any) {
+    console.error("PATCH Member Error:", error);
+    const message = error?.message || "Profil anggota gagal diperbarui. Email mungkin sudah digunakan.";
+    return errorResponse(message, 400);
   }
 }
 
@@ -229,13 +229,13 @@ export async function DELETE(request: Request) {
 
     await prisma.user.delete({ where: { id } });
 
-    if (existing.avatarUrl && existing.avatarUrl.startsWith("/uploads/members/")) {
-      const avatarPath = path.join(process.cwd(), "public", existing.avatarUrl);
-      await unlink(avatarPath).catch(() => undefined);
+    if (existing.avatarUrl && existing.avatarUrl.includes("vercel-storage.com")) {
+      await del(existing.avatarUrl).catch(() => undefined);
     }
 
     return NextResponse.json({ success: true, message: "Anggota berhasil dihapus." });
-  } catch {
+  } catch (error: any) {
+    console.error("DELETE Member Error:", error);
     return errorResponse("Anggota gagal dihapus.", 400);
   }
 }
@@ -247,7 +247,8 @@ export async function POST(request: Request) {
   let formData: FormData;
   try {
     formData = await request.formData();
-  } catch {
+  } catch (err) {
+    console.error("POST FormData Parse Error:", err);
     return errorResponse("Format data anggota tidak valid.");
   }
 
@@ -267,21 +268,21 @@ export async function POST(request: Request) {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return errorResponse("Format email tidak valid.");
   if (birthDate === undefined || joinDate === undefined) return errorResponse("Format tanggal tidak valid.");
-  if (avatar !== null && (!(avatar instanceof File) || avatar.size === 0)) return errorResponse("File foto profil tidak valid.");
-  if (avatar instanceof File && (!allowedAvatarTypes.has(avatar.type) || avatar.size > MAX_AVATAR_SIZE)) {
-    return errorResponse("Foto profil harus berupa JPG, PNG, WebP, atau GIF maksimal 5 MB.");
+  
+  if (avatar instanceof File && avatar.size > 0) {
+    if (!allowedAvatarTypes.has(avatar.type) || avatar.size > MAX_AVATAR_SIZE) {
+      return errorResponse("Foto profil harus berupa JPG, PNG, WebP, atau GIF maksimal 5 MB.");
+    }
   }
 
   let avatarUrl: string | null = null;
-  let avatarPath: string | null = null;
   try {
-    if (avatar instanceof File) {
-      const uploadDirectory = path.join(process.cwd(), "public", "uploads", "members");
-      const filename = `${randomUUID()}.${avatarExtensions[avatar.type]}`;
-      avatarPath = path.join(uploadDirectory, filename);
-      await mkdir(uploadDirectory, { recursive: true });
-      await writeFile(avatarPath, Buffer.from(await avatar.arrayBuffer()));
-      avatarUrl = `/uploads/members/${filename}`;
+    if (avatar instanceof File && avatar.size > 0) {
+      const extension = avatarExtensions[avatar.type] || "jpg";
+      const filename = `members/${randomUUID()}.${extension}`;
+      
+      const blob = await put(filename, avatar, { access: "public" });
+      avatarUrl = blob.url;
     }
 
     const year = new Date().getFullYear();
@@ -313,8 +314,9 @@ export async function POST(request: Request) {
       select: memberSelect,
     });
     return NextResponse.json({ member }, { status: 201 });
-  } catch {
-    if (avatarPath) await unlink(avatarPath).catch(() => undefined);
-    return errorResponse("Anggota gagal ditambahkan. Email mungkin sudah digunakan.", 409);
+  } catch (error: any) {
+    console.error("POST Member Error:", error);
+    const message = error?.message || "Anggota gagal ditambahkan. Email mungkin sudah digunakan.";
+    return errorResponse(message, 409);
   }
 }
