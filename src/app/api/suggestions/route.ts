@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { hasRole } from "@/lib/auth";
+import { getSession, hasRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { Role } from "@prisma/client";
 
@@ -85,5 +84,32 @@ export async function GET(req: NextRequest) {
     });
   } catch {
     return NextResponse.json({ error: "Gagal mengambil data kritik dan saran" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasRole(session.role, MANAGEMENT_ROLES)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID kritik dan saran diperlukan" }, { status: 400 });
+    }
+
+    await prisma.suggestion.delete({ where: { id } });
+
+    return NextResponse.json({ message: "Kritik dan saran berhasil dihapus" });
+  } catch {
+    return NextResponse.json({ error: "Gagal menghapus kritik dan saran" }, { status: 500 });
   }
 }

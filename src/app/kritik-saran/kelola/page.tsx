@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, User, UserCircle, Calendar, Mail, AlertCircle, MoreVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, UserCircle, Calendar, Mail, AlertCircle, Eye, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { showError } from "@/components/AlertProvider";
+import { Alert, confirmAction, showError, showSuccess } from "@/components/AlertProvider";
 import { DashboardShell } from "@/components/DashboardShell";
 
 type Suggestion = {
@@ -69,6 +69,27 @@ export default function KelolaKritikSaranPage() {
     BENDAHARA: "Bendahara",
     ANGGOTA: "Anggota",
   };
+
+  function showSuggestionDetail(s: Suggestion) {
+    const sender = s.isAnonymous
+      ? "Anonim"
+      : s.user?.fullName || "Tidak diketahui";
+    Alert.fire({
+      icon: "info",
+      title: "Kritik & Saran",
+      html: `<div class="text-left"><p class="mb-3 whitespace-pre-wrap text-slate-700">${s.content}</p><div class="text-xs text-slate-500 space-y-1"><div><strong>Dikirim:</strong> ${formatDate(s.createdAt)}</div><div><strong>Pengirim:</strong> ${sender}</div>${s.user ? `<div><strong>ID:</strong> ${s.user.memberId}</div><div><strong>Peran:</strong> ${roleLabels[s.user.role] || s.user.role}</div>` : ""}</div></div>`,
+      confirmButtonText: "Tutup",
+    });
+  }
+
+  async function deleteSuggestion(id: string) {
+    if (!await confirmAction("Hapus Kritik & Saran?", "Masukkan ini akan dihapus secara permanen dan tidak dapat dikembalikan.")) return;
+    const res = await fetch(`/api/suggestions?id=${id}`, { method: "DELETE" });
+    const data = await res.json() as { message?: string };
+    if (!res.ok) return showError(data.message || "Gagal menghapus kritik dan saran.");
+    await showSuccess("Kritik dan saran berhasil dihapus.");
+    await fetchSuggestions(pagination.page);
+  }
 
   if (loading) {
     return (
@@ -148,9 +169,20 @@ export default function KelolaKritikSaranPage() {
                       <p className="text-sm text-slate-700 line-clamp-2">{s.content}</p>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" title="Lihat detail">
-                          <MoreVertical size={18} />
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => showSuggestionDetail(s)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                          title="Lihat detail"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button
+                          onClick={() => deleteSuggestion(s.id)}
+                          className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="Hapus"
+                        >
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </td>

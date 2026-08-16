@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { Send, AlertCircle, CheckCircle, UserCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Send, AlertCircle, CheckCircle, UserCircle, Shield } from "lucide-react";
 import { showSuccess, showError } from "@/components/AlertProvider";
-import { DashboardShell } from "@/components/DashboardShell";
+import { DashboardShell, type SessionUser } from "@/components/DashboardShell";
+
+const ADMIN_ROLES: SessionUser["role"][] = ["KETUA", "SEKRETARIS", "BENDAHARA"];
 
 export default function KritikSaranPage() {
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [user, setUser] = useState<SessionUser | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data?.user ?? null))
+      .catch(() => setUser(null));
+  }, []);
+
+  const isAdmin = !!(user && ADMIN_ROLES.includes(user.role));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,12 +65,23 @@ export default function KritikSaranPage() {
   return (
     <DashboardShell title="Kritik & Saran">
     <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Kritik & Saran</h1>
-        <p className="mt-1 text-slate-500">
-          Salam sejahtera warga Dusun Kemitir. Silakan sampaikan kritik, saran, atau masukan Anda untuk kemajuan Karang Taruna "Tunas Harapan".
-          Pengiriman bisa secara <strong className="text-slate-700">anonim</strong> maupun dengan identitas.
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Kritik & Saran</h1>
+          <p className="mt-1 text-slate-500">
+            Salam sejahtera warga Dusun Kemitir. Silakan sampaikan kritik, saran, atau masukan Anda untuk kemajuan Karang Taruna "Tunas Harapan".
+            Pengiriman bisa secara <strong className="text-slate-700">anonim</strong> maupun dengan identitas.
+          </p>
+        </div>
+        {isAdmin && (
+          <Link
+            href="/kritik-saran/kelola"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 px-4 py-2 text-sm font-semibold text-[#0F766E] hover:bg-teal-100 transition-colors"
+          >
+            <Shield size={16} />
+            Kelola Kritik & Saran
+          </Link>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">

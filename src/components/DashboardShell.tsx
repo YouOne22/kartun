@@ -44,6 +44,7 @@ const navigation: NavigationItem[] = [
   { href: "/kegiatan/laporan", label: "Laporan", icon: FileText },
   { href: "/informasi/pengumuman", label: "Pengumuman", icon: Megaphone },
   { href: "/kritik-saran", label: "Kritik & Saran", icon: MessageSquare },
+  { href: "/kritik-saran/kelola", label: "Kelola Kritik & Saran", icon: MessageSquare, roles: ["KETUA", "SEKRETARIS", "BENDAHARA"] },
   { href: "/ruang-warga", label: "Ruang Warga", icon: MessageCircle },
 ];
 
@@ -101,8 +102,8 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-[#0F172A]">
-      {open && <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="fixed inset-0 z-30 bg-slate-900/30 md:hidden" />}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[270px] flex-col border-r border-teal-950 bg-[#073833] p-4 transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+            {open && <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="fixed inset-0 z-[55] bg-slate-900/30 md:hidden backdrop-blur-sm" />}
+      <aside className={`fixed inset-y-0 left-0 z-[60] flex w-[270px] flex-col border-r border-teal-950 bg-[#073833] p-4 transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mb-6 flex items-center justify-between gap-3 px-2 py-1">
             <button type="button" onClick={() => setProfileOpen(true)} className="flex min-w-0 items-center gap-3 text-left group">
@@ -115,7 +116,7 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
         </div>
       {/* Profil Lengkap Modal */}
       {profileOpen && user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
               <div className="flex items-center gap-2">
@@ -179,7 +180,7 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
         <main className="mx-auto w-full max-w-[1600px] flex-1 p-4 sm:p-6">{children}</main>
       {/* Profil Lengkap Modal */}
       {profileOpen && user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
               <div className="flex items-center gap-3">
