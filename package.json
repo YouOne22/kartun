@@ -17,6 +17,7 @@
   "dependencies": {
     "@prisma/client": "^7.9.1",
     "@types/qrcode.react": "^1.0.5",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "html2canvas": "^1.4.1",
