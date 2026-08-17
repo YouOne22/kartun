@@ -74,7 +74,11 @@ export async function GET(request: Request) {
     }
     const members = auth.session.role === "ANGGOTA"
       ? await prisma.user.findMany({ where: { id: auth.session.userId }, select: memberSelect })
-      : await prisma.user.findMany({ select: memberSelect, orderBy: { fullName: "asc" } });
+      : await prisma.user.findMany({
+          where: { email: { not: "dev@tunasharapan.id" } },
+          select: memberSelect,
+          orderBy: { fullName: "asc" },
+        });
     return NextResponse.json({ members });
   } catch (error: any) {
     console.error("GET Members Error:", error);
