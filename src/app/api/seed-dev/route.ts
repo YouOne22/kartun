@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Gender, Role } from "@prisma/client";
 
 /**
- * One-shot endpoint to seed the dev account into the production (Neon) database.
+ * One-shot endpoint to seed accounts into the production (Neon) database.
  *
  * Usage: GET https://<domain>/api/seed-dev?secret=<AUTH_SECRET>
  *
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const defaultPassword = process.env.DEFAULT_PASSWORD || "kartunmaju";
     const passwordHash = await hash(defaultPassword, 12);
 
-    const user = await prisma.user.upsert({
+    const devUser = await prisma.user.upsert({
       where: { email: "dev@tunasharapan.id" },
       update: {
         fullName: "Dev Monitor",
@@ -57,15 +57,49 @@ export async function GET(request: Request) {
       },
     });
 
+    const ketuaUser = await prisma.user.upsert({
+      where: { email: "ketua@tunasharapan.id" },
+      update: {
+        passwordHash,
+        isDefaultPassword: true,
+      },
+      create: {
+        memberId: "KT-TH-2026-001",
+        fullName: "Ketua Karang Taruna",
+        email: "ketua@tunasharapan.id",
+        passwordHash,
+        isDefaultPassword: true,
+        gender: Gender.L,
+        phoneWa: "081234567890",
+        rt: "01",
+        rw: "01",
+        address: "Dusun Kemitir",
+        role: Role.KETUA,
+        qrCodeToken: randomUUID(),
+      },
+      select: {
+        id: true,
+        memberId: true,
+        email: true,
+        fullName: true,
+        role: true,
+        isDefaultPassword: true,
+      },
+    });
+
     return NextResponse.json({
-      message: "Dev account seeded successfully.",
-      user,
-      login: { email: "dev@tunasharapan.id", password: defaultPassword },
+      message: "Accounts seeded successfully.",
+      devUser,
+      ketuaUser,
+      credentials: {
+        dev: { email: "dev@tunasharapan.id", password: defaultPassword },
+        ketua: { email: "ketua@tunasharapan.id", password: defaultPassword },
+      },
     });
   } catch (error) {
     console.error("Seed-dev error:", error);
     return NextResponse.json(
-      { error: "Failed to seed dev account.", details: String(error) },
+      { error: "Failed to seed accounts.", details: String(error) },
       { status: 500 },
     );
   }
