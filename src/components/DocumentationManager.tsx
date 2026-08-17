@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Check, ImagePlus, Upload, X, Trash2 } from "lucide-react";
+import { Check, Edit3, ExternalLink, ImagePlus, Maximize2, Trash2, Upload, X } from "lucide-react";
 import { type SessionUser } from "@/components/DashboardShell";
 import { confirmAction, rejectionReason, showError, showSuccess } from "@/components/AlertProvider";
+import Modal from "@/components/Modal";
 
-type Doc = { id: string; photoUrlThumb: string; photoUrlHd: string; caption: string | null; status: string; rejectionReason: string | null; event: { title: string } };
+type Doc = { 
+  id: string; 
+  photoUrlThumb: string; 
+  photoUrlHd: string; 
+  caption: string | null; 
+  status: string; 
+  rejectionReason: string | null; 
+  event: { id: string; title: string }; 
+};
 type EventItem = { id: string; title: string };
 type FormState = { eventId: string; photo: File | null; caption: string };
 
@@ -20,8 +29,11 @@ export function DocumentationManager({ moderationOnly = false }: { moderationOnl
   const [form, setForm] = useState<FormState>(initialForm);
   const [preview, setPreview] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<Doc | null>(null);
   const [saving, setSaving] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     const response = await fetch("/api/documentations", { cache: "no-store" });
@@ -93,6 +105,41 @@ export function DocumentationManager({ moderationOnly = false }: { moderationOnl
       await showSuccess("Dokumentasi dikirim untuk moderasi.");
     } catch {
       void showError("Dokumentasi gagal diunggah.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function replacePhoto(file: File | undefined, doc: Doc) {
+    if (!file) return;
+    if (!allowedPhotoTypes.has(file.type) || file.size > MAX_PHOTO_SIZE) {
+      void showError("Foto harus berupa JPG, PNG, WebP, atau GIF maksimal 5 MB.");
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
+      return;
+    }
+    if (!await confirmAction("Ganti Foto?", "Foto lama akan dihapus dan digantikan dengan foto baru.")) return;
+    setSaving(true);
+    try {
+      const body = new FormData();
+      body.append("eventId", doc.event.id);
+      body.append("photo", file);
+      if (doc.caption) body.append("caption", doc.caption);
+
+      const uploadResponse = await fetch("/api/documentations", { method: "POST", body });
+      if (!uploadResponse.ok) {
+        const uploadData = await uploadResponse.json() as { message?: string };
+        void showError(uploadData.message || "Gagal mengunggah foto baru.");
+        return;
+      }
+
+      await fetch(`/api/documentations?id=${doc.id}`, { method: "DELETE" });
+
+      setViewingDoc(null);
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
+      await load();
+      await showSuccess("Foto berhasil diganti.");
+    } catch {
+      void showError("Gagal mengganti foto.");
     } finally {
       setSaving(false);
     }
@@ -381,7 +428,7 @@ export function DocumentationManager({ moderationOnly = false }: { moderationOnl
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/gif"
                       className="hidden"
-                      onChange={(e) => replacePhoto(e.target.files?.[0], viewingDoc)}
+                      onChange={(e) => void replacePhoto(e.target.files?.[0], viewingDoc)}
                     />
                     <button
                       type="button"

@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -15,9 +14,15 @@ export async function GET() {
   const auth = await authorized();
   if ("response" in auth) return auth.response;
   try {
-    const documentations = await prisma.eventDocumentation.findMany({ where: auth.session.role === "ANGGOTA" ? { OR: [{ status: "APPROVED" }, { uploaderId: auth.session.userId }] } : undefined, include: { event: { select: { id: true, title: true, eventDate: true } }, uploader: { select: { fullName: true } } }, orderBy: { createdAt: "desc" } });
+    const documentations = await prisma.eventDocumentation.findMany({
+      where: auth.session.role === "ANGGOTA" ? { OR: [{ status: "APPROVED" }, { uploaderId: auth.session.userId }] } : undefined,
+      include: { event: { select: { id: true, title: true, eventDate: true } }, uploader: { select: { fullName: true } } },
+      orderBy: { createdAt: "desc" }
+    });
     return NextResponse.json({ documentations });
-  } catch { return errorResponse("Dokumentasi belum tersedia.", 503); }
+  } catch {
+    return errorResponse("Dokumentasi belum tersedia.", 503);
+  }
 }
 
 export async function POST(request: Request) {
@@ -37,11 +42,7 @@ export async function POST(request: Request) {
   if (!eventId || !(photo instanceof File) || photo.size === 0) return errorResponse("Kegiatan dan foto wajib diisi.");
   if (!allowedPhotoTypes.has(photo.type) || photo.size > MAX_PHOTO_SIZE) return errorResponse("Foto harus berupa JPG, PNG, WebP, atau GIF maksimal 5 MB.");
 
-  const uploadDirectory = path.join(process.cwd(), "public", "uploads", "documentations");
   const baseFilename = randomUUID();
-  const hdPath = path.join(uploadDirectory, `${baseFilename}-hd.webp`);
-  const thumbPath = path.join(uploadDirectory, `${baseFilename}-thumb.webp`);
-  let filesWritten = false;
 
   try {
     const source = Buffer.from(await photo.arrayBuffer());
@@ -49,22 +50,25 @@ export async function POST(request: Request) {
       sharp(source).rotate().resize({ width: 2048, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer(),
       sharp(source).rotate().resize({ width: 300, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer(),
     ]);
-    await mkdir(uploadDirectory, { recursive: true });
-    await Promise.all([writeFile(hdPath, hdBuffer), writeFile(thumbPath, thumbBuffer)]);
-    filesWritten = true;
+
+    // Unggah langsung ke Vercel Blob Cloud Storage
+    const [hdBlob, thumbBlob] = await Promise.all([
+      put(`documentations/${baseFilename}-hd.webp`, hdBuffer, { access: "public" }),
+      put(`documentations/${baseFilename}-thumb.webp`, thumbBuffer, { access: "public" }),
+    ]);
 
     const documentation = await prisma.eventDocumentation.create({
       data: {
         eventId,
         uploaderId: auth.session.userId,
-        photoUrlHd: `/uploads/documentations/${baseFilename}-hd.webp`,
-        photoUrlThumb: `/uploads/documentations/${baseFilename}-thumb.webp`,
+        photoUrlHd: hdBlob.url,
+        photoUrlThumb: thumbBlob.url,
         caption: caption || null,
       },
     });
     return NextResponse.json({ documentation }, { status: 201 });
-  } catch {
-    if (filesWritten) await Promise.all([unlink(hdPath).catch(() => undefined), unlink(thumbPath).catch(() => undefined)]);
+  } catch (error) {
+    console.error("Upload error:", error);
     return errorResponse("Dokumentasi gagal diunggah.", 400);
   }
 }
@@ -76,9 +80,18 @@ export async function PATCH(request: Request) {
   const id = safeText(body.id, 50), status = body.status === "APPROVED" || body.status === "REJECTED" ? body.status : null;
   const rejectionReason = safeText(body.rejectionReason, 1000);
   if (!id || !status || (status === "REJECTED" && !rejectionReason)) return errorResponse("Status dan alasan penolakan wajib valid.");
-  try { return NextResponse.json({ documentation: await prisma.eventDocumentation.update({ where: { id }, data: { status, rejectionReason: status === "REJECTED" ? rejectionReason : null, approvedBy: auth.session.userId } }) }); }
-  catch { return errorResponse("Moderasi dokumentasi gagal diproses.", 400); }
-} 
+  try {
+    return NextResponse.json({
+      documentation: await prisma.eventDocumentation.update({
+        where: { id },
+        data: { status, rejectionReason: status === "REJECTED" ? rejectionReason : null, approvedBy: auth.session.userId }
+      })
+    });
+  } catch {
+    return errorResponse("Moderasi dokumentasi gagal diproses.", 400);
+  }
+}
+
 export async function DELETE(request: Request) {
   const auth = await authorized(["KETUA", "SEKRETARIS"]);
   if ("response" in auth) return auth.response;
@@ -99,15 +112,11 @@ export async function DELETE(request: Request) {
 
     await prisma.eventDocumentation.delete({ where: { id } });
 
-    // Clean up photo files asynchronously (don't block response on unlink errors)
-    if (existing.photoUrlHd) {
-      const hdPath = path.join(process.cwd(), "public", existing.photoUrlHd);
-      unlink(hdPath).catch(() => undefined);
-    }
-    if (existing.photoUrlThumb) {
-      const thumbPath = path.join(process.cwd(), "public", existing.photoUrlThumb);
-      unlink(thumbPath).catch(() => undefined);
-    }
+    // Hapus file dari Vercel Blob Storage
+    const deletePromises = [];
+    if (existing.photoUrlHd) deletePromises.push(del(existing.photoUrlHd));
+    if (existing.photoUrlThumb) deletePromises.push(del(existing.photoUrlThumb));
+    await Promise.allSettled(deletePromises);
 
     return NextResponse.json({ success: true, message: "Dokumentasi berhasil dihapus." });
   } catch {
