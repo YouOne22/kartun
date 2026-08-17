@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -73,14 +76,24 @@ export default function LoginPage() {
 
           <div>
             <label className="block text-xs font-medium text-[#0F172A] mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[#0F172A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2.5 pr-10 rounded-xl border border-slate-200 bg-white text-[#0F172A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -93,7 +106,10 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-[#64748B]">
-          Lupa password? Hubungi Sekretaris Karang Taruna Dusun Kemitir.
+          Lupa password?{" "}
+          <Link href="/forgot-password" className="font-semibold text-[#0F766E] hover:underline">
+            Reset di sini
+          </Link>
         </div>
       </div>
     </div>

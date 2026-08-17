@@ -19,7 +19,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const defaultPassword = process.env.DEFAULT_PASSWORD ?? "Dusun2026";
+  const defaultPassword = process.env.DEFAULT_PASSWORD ?? "kartunmaju";
   const passwordHash = await hash(defaultPassword, 12);
 
   await prisma.user.upsert({

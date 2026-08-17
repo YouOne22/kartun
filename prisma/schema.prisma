@@ -311,17 +311,31 @@ model PollingVote {
   @@map("polling_votes")
 }
 
-model Suggestion {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String?  @map("user_id") @db.Uuid
-  isAnonymous Boolean @default(false) @map("is_anonymous")
-  content   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
 
-  user      User?    @relation("UserSuggestions", fields: [userId], references: [id], onDelete: SetNull)
+model PasswordResetOtp {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String   @db.VarChar(100)
+  code       String   @db.VarChar(10)
+  expiresAt  DateTime @map("expires_at")
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("password_reset_otps")
+}
+
+model Suggestion {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  isAnonymous Boolean @default(false) @map("is_anonymous")
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User?    @relation("UserSuggestions", fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("suggestions")
 }
+
+
 
 
 

@@ -114,58 +114,6 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
           </div>
           <nav aria-label="Navigasi utama" className="space-y-1">{visibleNavigation.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <Link onClick={() => setOpen(false)} key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-[#0F766E]/20 font-semibold text-teal-100" : "text-teal-100/60 hover:bg-[#0F766E]/10 hover:text-teal-50"}`}><Icon aria-hidden="true" size={17} strokeWidth={active ? 2.25 : 2} />{item.label}</Link>; })}</nav>
         </div>
-      {/* Profil Lengkap Modal */}
-      {profileOpen && user && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]"><Users size={19} /></div>
-                <div><h2 className="text-base font-bold text-slate-900">Profil Pribadi Pengguna</h2><p className="text-xs text-slate-500">Informasi detail akun dan kartu identitas digital</p></div>
-              </div>
-              <button onClick={() => setProfileOpen(false)} aria-label="Tutup modal" className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"><X size={20} /></button>
-            </div>
-            <div className="space-y-6 p-6">
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-teal-50/30 p-6 shadow-sm">
-                <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-                  {user.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} className="h-24 w-24 shrink-0 rounded-2xl object-cover shadow-md ring-4 ring-white" /> : <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-[#0F766E] text-2xl font-bold text-white shadow-md ring-4 ring-white">{initials(user.fullName)}</div>}
-
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xl font-bold text-slate-900">{user.fullName}</h3>
-                    <p className="mt-0.5 font-mono text-sm font-semibold text-[#0F766E]">{user.memberId}</p>
-                    <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
-                      <span className="rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-800">{roleLabels[user.role]}</span>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">{user.memberStatus || "Aktif"}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-slate-200 p-5 bg-white shadow-sm">
-                <div><p className="text-xs font-medium text-slate-400">Email</p><p className="mt-0.5 text-sm font-semibold text-slate-800 break-all">{user.email}</p></div>
-                <div><p className="text-xs font-medium text-slate-400">No. WhatsApp / HP</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{user.phoneWa || "-"}</p></div>
-                <div><p className="text-xs font-medium text-slate-400">Jenis Kelamin</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{user.gender === "P" ? "Perempuan" : "Laki-laki"}</p></div>
-                <div><p className="text-xs font-medium text-slate-400">Tempat, Tanggal Lahir</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{user.birthPlace || "-"}, {user.birthDate ? new Date(user.birthDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "-"}</p></div>
-                <div className="sm:col-span-2"><p className="text-xs font-medium text-slate-400">Alamat Lengkap</p><p className="mt-0.5 text-sm font-semibold text-slate-800">RT {user.rt || "-"} / RW {user.rw || "-"}, Dusun {user.dusun || "Kemitir"}{user.address ? `, ${user.address}` : ""}</p></div>
-                <div><p className="text-xs font-medium text-slate-400">Pendidikan</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{user.education || "-"}</p></div>
-                <div><p className="text-xs font-medium text-slate-400">Pekerjaan</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{user.occupation || "-"}</p></div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
-                <div className="flex items-center gap-2"><IdCard size={18} className="text-[#0F766E]" /><h4 className="font-bold text-slate-900">Token QR Absensi</h4></div>
-                <div className="flex items-center gap-3">
-                  <code className="min-w-0 flex-1 break-all rounded-xl bg-slate-50 p-3 text-xs font-mono text-slate-600 border border-slate-100">{user.qrCodeToken || "Token belum tersedia"}</code>
-                  <button onClick={copyToken} disabled={!user.qrCodeToken} aria-label="Salin QR token" className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-[#0F766E] hover:bg-teal-50 transition-colors shrink-0"><Copy size={16} /> Salin</button>
-                </div>
-                <p className="text-xs text-slate-500">Gunakan token QR ini untuk absensi mandiri pada kegiatan Karang Taruna.</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4 rounded-b-2xl">
-              <button type="button" onClick={() => { setProfileOpen(false); logout(); }} className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors"><LogOut size={15} /> Keluar Sistem</button>
-              <button type="button" onClick={() => setProfileOpen(false)} className="rounded-xl bg-[#0F766E] px-5 py-2.5 text-xs font-semibold text-white hover:bg-teal-800 transition-colors">Tutup</button>
-            </div>
-          </div>
-        </div>
-      )}
-
         <div className="mt-4 border-t border-teal-900 pt-4"><p className="truncate px-2 text-[11px] text-teal-300/70">ID Anggota: {user?.memberId}</p></div>
 
       </aside>

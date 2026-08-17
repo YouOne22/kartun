@@ -114,9 +114,8 @@ export async function PATCH(request: Request) {
   const id = safeText(value("id"), 50);
   if (!id) return errorResponse("ID anggota wajib diisi.");
 
-  const isStaff = ["KETUA", "SEKRETARIS"].includes(auth.session.role);
-  if (!isStaff && id !== auth.session.userId) {
-    return errorResponse("Anda hanya dapat mengubah profil sendiri.", 403);
+  if (id !== auth.session.userId) {
+    return errorResponse("Anda hanya dapat mengubah profil akun Anda sendiri.", 403);
   }
 
   const existing = await prisma.user.findUnique({ where: { id }, select: { id: true, avatarUrl: true, role: true, memberStatus: true } });
@@ -147,17 +146,10 @@ export async function PATCH(request: Request) {
     return errorResponse("Format tanggal tidak valid.");
   }
 
-  let role = existing.role;
-  let memberStatus = existing.memberStatus;
-
-  if (isStaff) {
-    if (value("role")) {
-      role = enumValue(value("role"), ["KETUA", "SEKRETARIS", "BENDAHARA", "ANGGOTA"] as const, existing.role);
-    }
-    if (value("memberStatus")) {
-      memberStatus = enumValue(value("memberStatus"), ["AKTIF", "NON_AKTIF"] as const, existing.memberStatus);
-    }
-  }
+  // Role dan status anggota tidak dapat diubah lewat PATCH ini.
+  // Pengaturan role/status hanya dilakukan saat menambah anggota (POST).
+  const role = existing.role;
+  const memberStatus = existing.memberStatus;
 
   if (avatar instanceof File && avatar.size > 0) {
     if (!allowedAvatarTypes.has(avatar.type) || avatar.size > MAX_AVATAR_SIZE) {
@@ -180,26 +172,30 @@ export async function PATCH(request: Request) {
       }
     }
 
+    // Buat object data secara eksplisit agar bebas error TypeScript
+    const updateData: Record<string, any> = {
+      fullName,
+      phoneWa,
+      gender,
+      birthPlace,
+      dusun,
+      address,
+      education,
+      occupation,
+      role,
+      memberStatus,
+    };
+
+    if (email) updateData.email = email;
+    if (birthDate !== undefined) updateData.birthDate = birthDate;
+    if (rt) updateData.rt = rt;
+    if (rw) updateData.rw = rw;
+    if (joinDate !== undefined) updateData.joinDate = joinDate;
+    if (newAvatarUrl !== undefined) updateData.avatarUrl = newAvatarUrl;
+
     const updated = await prisma.user.update({
       where: { id },
-      data: {
-        fullName,
-        ...(email ? { email } : {}),
-        phoneWa,
-        gender,
-        birthPlace,
-        ...(birthDate !== undefined ? { birthDate } : {}),
-        dusun,
-        ...(rt ? { rt } : {}),
-        ...(rw ? { rw } : {}),
-        address,
-        education,
-        occupation,
-        ...(joinDate !== undefined ? { joinDate } : {}),
-        role,
-        memberStatus,
-        ...(newAvatarUrl !== undefined ? { avatarUrl: newAvatarUrl } : {}),
-      },
+      data: updateData,
       select: memberSelect,
     });
 
@@ -288,7 +284,7 @@ export async function POST(request: Request) {
     const year = new Date().getFullYear();
     const count = await prisma.user.count({ where: { memberId: { startsWith: `KT-TH-${year}-` } } });
     const memberId = `KT-TH-${year}-${String(count + 1).padStart(3, "0")}`;
-    const passwordHash = await hash(process.env.DEFAULT_PASSWORD || "Dusun2026", 12);
+    const passwordHash = await hash(process.env.DEFAULT_PASSWORD || "kartunmaju", 12);
     const member = await prisma.user.create({
       data: {
         memberId,

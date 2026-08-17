@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Search, UserPlus, Eye, Pencil, Trash2 } from "lucide-react";
+import { Search, UserPlus, Eye, Pencil, Trash2, X } from "lucide-react";
 import { DashboardShell, type SessionUser } from "@/components/DashboardShell";
 import { confirmAction, showError, showSuccess } from "@/components/AlertProvider";
 import Avatar from "@/components/Avatar";
@@ -90,6 +90,7 @@ export default function MembersPage(){
  }
  async function add(e:FormEvent){e.preventDefault();setSaving(true);try{const data=new FormData();Object.entries(form).forEach(([key,value])=>{if(key!=="avatarFile"&&key!=="id"&&typeof value==="string")data.append(key,value)});if(form.avatarFile)data.append("avatar",form.avatarFile);const r=await fetch("/api/members",{method:"POST",body:data}),d=await r.json() as {message?:string};if(!r.ok){await showError(d.message||"Anggota gagal ditambahkan.");return}setModal(null);setForm({...initial});await load();await showSuccess("Anggota berhasil ditambahkan.")}catch{await showError("Anggota gagal ditambahkan. Periksa koneksi Anda.")}finally{setSaving(false)}}
  const canManage=!!user&&["KETUA","SEKRETARIS"].includes(user.role);
+ const canDelete=!!user&&["KETUA","SEKRETARIS"].includes(user.role);
 
  const columns = [
    {
@@ -160,25 +161,23 @@ export default function MembersPage(){
          >
            <Eye size={15} />
          </button>
-         {canManage && (
-           <>
-             <button
-               title="Edit Data Anggota"
-               onClick={() => openEditModal(m)}
-               className="rounded-lg border border-teal-200 p-1.5 text-teal-600 hover:bg-teal-50 transition"
-             >
-               <Pencil size={15} />
-             </button>
-             {m.id !== user?.id && (
-               <button
-                 title="Hapus Anggota"
-                 onClick={() => remove(m)}
-                 className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 transition"
-               >
-                 <Trash2 size={15} />
-               </button>
-             )}
-           </>
+         {user && m.id === user.id && (
+           <button
+             title="Edit Data Anggota"
+             onClick={() => openEditModal(m)}
+             className="rounded-lg border border-teal-200 p-1.5 text-teal-600 hover:bg-teal-50 transition"
+           >
+             <Pencil size={15} />
+           </button>
+         )}
+         {canDelete && m.id !== user?.id && (
+           <button
+             title="Hapus Anggota"
+             onClick={() => remove(m)}
+             className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 transition"
+           >
+             <Trash2 size={15} />
+           </button>
          )}
        </div>
      ),
@@ -254,8 +253,8 @@ export default function MembersPage(){
              <Field label="Pendidikan"><input maxLength={30} value={form.education} onChange={e=>set("education",e.target.value)} className="field"/></Field>
              <Field label="Pekerjaan"><input maxLength={50} value={form.occupation} onChange={e=>set("occupation",e.target.value)} className="field"/></Field>
              <Field label="Tanggal bergabung"><input type="date" value={form.joinDate} onChange={e=>set("joinDate",e.target.value)} className="field"/></Field>
-             <Field label="Status anggota"><select value={form.memberStatus} onChange={e=>set("memberStatus",e.target.value)} className="field"><option value="AKTIF">Aktif</option><option value="NON_AKTIF">Nonaktif</option></select></Field>
-             <Field label="Role"><select value={form.role} onChange={e=>set("role",e.target.value)} className="field"><option value="ANGGOTA">Anggota</option><option value="KETUA">Ketua</option><option value="SEKRETARIS">Sekretaris</option><option value="BENDAHARA">Bendahara</option></select></Field>
+             {modal === "add" && (<Field label="Status anggota"><select value={form.memberStatus} onChange={e=>set("memberStatus",e.target.value)} className="field"><option value="AKTIF">Aktif</option><option value="NON_AKTIF">Nonaktif</option></select></Field>)}
+             {modal === "add" && (<Field label="Role"><select value={form.role} onChange={e=>set("role",e.target.value)} className="field"><option value="ANGGOTA">Anggota</option><option value="KETUA">Ketua</option><option value="SEKRETARIS">Sekretaris</option><option value="BENDAHARA">Bendahara</option></select></Field>)}
              <Field label="Alamat lengkap" wide><textarea rows={3} maxLength={1000} value={form.address} onChange={e=>set("address",e.target.value)} className="field resize-y"/></Field>
              <Field label="Foto profil" wide><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e=>set("avatarFile",e.target.files?.[0]||null)} className="field file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-teal-700"/><p className="mt-1 text-[11px] text-slate-500">{modal === "edit" ? "Biarkan kosong jika tidak ingin mengubah foto profil." : "JPG, PNG, WebP, atau GIF. Maksimal 5 MB."}</p></Field>
            </div>
@@ -271,6 +270,7 @@ export default function MembersPage(){
 }
 
 function DetailModal({ member, close }: { member: Member; close: () => void }) {
+  const [photoOpen, setPhotoOpen] = useState(false);
   const item = (label: string, value: string | null | undefined) => (
     <div>
       <p className="text-xs text-slate-500">{label}</p>
@@ -281,7 +281,22 @@ function DetailModal({ member, close }: { member: Member; close: () => void }) {
   return (
     <Modal isOpen={true} onClose={close} title={member.fullName} description={member.memberId}>
       <div className="flex items-center gap-3 mb-6">
-        <Avatar member={member} />
+        {member.avatarUrl ? (
+          <button
+            type="button"
+            onPointerDown={(e) => { e.preventDefault(); setPhotoOpen(true); }}
+            className="flex-shrink-0 cursor-pointer rounded-full ring-2 ring-slate-200 transition hover:ring-teal-400 focus:outline-none focus:ring-teal-500 touch-manipulation min-h-[44px] min-w-[44px] p-0"
+          >
+            <img
+              src={member.avatarUrl}
+              alt={`Foto ${member.fullName}`}
+              className="h-14 w-14 rounded-full object-cover"
+              draggable={false}
+            />
+          </button>
+        ) : (
+          <Avatar member={member} />
+        )}
         <div>
           <h2 className="text-lg font-bold">{member.fullName}</h2>
           <p className="font-mono text-xs text-slate-500">{member.memberId}</p>
@@ -299,6 +314,30 @@ function DetailModal({ member, close }: { member: Member; close: () => void }) {
         {item("Role", roleLabel(member.role))}
         {item("Status anggota", member.memberStatus === "AKTIF" ? "Aktif" : "Nonaktif")}
       </div>
+
+      {/* Photo lightbox */}
+      {photoOpen && member.avatarUrl && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          onPointerDown={(e) => { if (e.target === e.currentTarget) setPhotoOpen(false); }}
+        >
+          <button
+            type="button"
+            onPointerDown={(e) => { e.preventDefault(); setPhotoOpen(false); }}
+            className="absolute right-4 top-4 rounded-full bg-white/90 p-2 text-slate-700 shadow-lg transition hover:bg-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Tutup foto"
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={member.avatarUrl}
+            alt={`Foto ${member.fullName}`}
+            className="max-h-[85vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
+            onPointerDown={(e) => e.stopPropagation()}
+            draggable={false}
+          />
+        </div>
+      )}
     </Modal>
   );
 }

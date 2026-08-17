@@ -5,7 +5,7 @@ import { MessageCircle, Plus, Send, Vote, X, Trash2, Ban } from "lucide-react";
 import { DashboardShell, type SessionUser } from "@/components/DashboardShell";
 import { showError, showSuccess, confirmAction } from "@/components/AlertProvider";
 
-type ChatMessage = { id: string; message: string; createdAt: string; sender: { fullName: string; role: string } };
+type ChatMessage = { id: string; message: string; createdAt: string; sender: { fullName: string; role: string; avatarUrl: string | null } };
 type Polling = { id: string; title: string; description: string | null; isActive: boolean; hasVoted: boolean; votedOptionId: string | null; options: { id: string; optionText: string; _count: { votes: number } }[] };
 export default function CommunityPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -183,17 +183,33 @@ export default function CommunityPage() {
               <h3 className="font-bold">Chat Umum</h3>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto">
-              {messages.map((item) => (
-                <div key={item.id} className="rounded-xl bg-slate-50 p-3">
-                  <div className="flex justify-between gap-3">
-                    <span className="text-xs font-semibold">{item.sender.fullName}</span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(item.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                    </span>
+              {messages.map((item) => {
+                const initials = (name: string) => name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+                return (
+                  <div key={item.id} className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
+                    {item.sender.avatarUrl ? (
+                      <img
+                        src={item.sender.avatarUrl}
+                        alt={`Foto ${item.sender.fullName}`}
+                        className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-slate-200"
+                      />
+                    ) : (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-xs font-bold text-white">
+                        {initials(item.sender.fullName)}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between gap-3">
+                        <span className="text-xs font-semibold text-slate-900">{item.sender.fullName}</span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(item.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-slate-700 break-words">{item.message}</p>
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-slate-700">{item.message}</p>
-                </div>
-              ))}
+                );
+              })}
               {!messages.length && <p className="py-16 text-center text-sm text-slate-500">Belum ada pesan.</p>}
             </div>
             <form onSubmit={sendMessage} className="mt-4 flex gap-2">
