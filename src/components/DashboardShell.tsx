@@ -96,7 +96,7 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
     }).catch(() => {});
   }, [user]);
 
-  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); router.replace("/login"); }
+  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); router.replace("/"); }
   async function copyToken() { if (!user?.qrCodeToken) return; await navigator.clipboard.writeText(user.qrCodeToken); await showSuccess("Token QR disalin."); }
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] text-sm text-slate-500">Memuat sistem...</div>;
   const visibleNavigation = navigation.filter((item) => !item.roles || (user && item.roles.includes(user.role)));

@@ -43,3 +43,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# root reference files (not needed in repo)
+/avatar.png
+/TUNAS HARAPAN.png
+/referensi.png
+/landingpage.md
