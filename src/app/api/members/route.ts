@@ -23,6 +23,7 @@ const memberSelect = {
   address: true,
   education: true,
   occupation: true,
+  section: true,
   joinDate: true,
   role: true,
   memberStatus: true,
@@ -118,11 +119,13 @@ export async function PATCH(request: Request) {
   const id = safeText(value("id"), 50);
   if (!id) return errorResponse("ID anggota wajib diisi.");
 
-  if (id !== auth.session.userId) {
-    return errorResponse("Anda hanya dapat mengubah profil akun Anda sendiri.", 403);
+  // KETUA dapat mengubah role dan status anggota, atau user mengubah diri sendiri
+  const isKetua = auth.session.role === "KETUA";
+  if (id !== auth.session.userId && !isKetua) {
+    return errorResponse("Anda tidak memiliki izin untuk mengubah data anggota lain.", 403);
   }
 
-  const existing = await prisma.user.findUnique({ where: { id }, select: { id: true, avatarUrl: true, role: true, memberStatus: true } });
+    const existing = await prisma.user.findUnique({ where: { id }, select: { id: true, avatarUrl: true, role: true, memberStatus: true, section: true } });
   if (!existing) return errorResponse("Anggota tidak ditemukan.", 404);
 
   const fullName = safeText(value("fullName"), 100);
@@ -140,6 +143,9 @@ export async function PATCH(request: Request) {
   const joinDate = dateOrNull(value("joinDate"));
   const avatar = value("avatar");
 
+    const memberStatus = isKetua ? enumValue(value("memberStatus"), ["AKTIF", "NON_AKTIF"] as const, existing.memberStatus) : existing.memberStatus;
+  const role = isKetua ? enumValue(value("role"), ["KETUA", "SEKRETARIS", "BENDAHARA", "ANGGOTA"] as const, existing.role) : existing.role;
+  const section = isKetua ? (safeText(value("section"), 100) || null) : existing.section;
   if (!fullName || !phoneWa) {
     return errorResponse("Nama dan WhatsApp wajib diisi.");
   }
@@ -149,11 +155,6 @@ export async function PATCH(request: Request) {
   if (birthDate === undefined || joinDate === undefined) {
     return errorResponse("Format tanggal tidak valid.");
   }
-
-  // Role dan status anggota tidak dapat diubah lewat PATCH ini.
-  // Pengaturan role/status hanya dilakukan saat menambah anggota (POST).
-  const role = existing.role;
-  const memberStatus = existing.memberStatus;
 
   if (avatar instanceof File && avatar.size > 0) {
     if (!allowedAvatarTypes.has(avatar.type) || avatar.size > MAX_AVATAR_SIZE) {
@@ -186,8 +187,9 @@ export async function PATCH(request: Request) {
       address,
       education,
       occupation,
-      role,
+            role,
       memberStatus,
+      section,
     };
 
     if (email) updateData.email = email;
@@ -305,6 +307,7 @@ export async function POST(request: Request) {
         address: safeText(value("address"), 1000) || null,
         education: safeText(value("education"), 30) || null,
         occupation: safeText(value("occupation"), 50) || null,
+        section: auth.session.role === "KETUA" ? (safeText(value("section"), 100) || null) : null,
         joinDate: joinDate ?? undefined,
         memberStatus,
         role,

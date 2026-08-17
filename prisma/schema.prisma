@@ -75,6 +75,7 @@ model User {
   address           String?
   education         String?      @db.VarChar(30)
   occupation        String?      @db.VarChar(50)
+  section           String?      @db.VarChar(100)
   joinDate          DateTime     @default(now()) @map("join_date") @db.Date
   memberStatus      MemberStatus @default(AKTIF) @map("member_status")
   role              Role         @default(ANGGOTA)

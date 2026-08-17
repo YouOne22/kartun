@@ -23,6 +23,7 @@ export async function GET() {
       address: true,
       education: true,
       occupation: true,
+      section: true,
       role: true,
       memberStatus: true,
       isDefaultPassword: true,
