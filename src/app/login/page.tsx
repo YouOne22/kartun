@@ -1,14 +1,26 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User, ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import Button from "@/components/Button";
+
+type SessionUser = {
+  role: "KETUA" | "SEKRETARIS" | "BENDAHARA" | "ANGGOTA";
+};
+
+function redirectForRole(role: SessionUser["role"]) {
+  void role;
+  return "/dashboard";
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -16,100 +28,231 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({ identifier, password, rememberMe }),
       });
-      const data = await res.json();
-
+      const data = (await res.json()) as {
+        message?: string;
+        requiresPasswordChange?: boolean;
+        user?: SessionUser;
+      };
       if (!res.ok) {
         setError(data.message || "Gagal masuk.");
         setLoading(false);
         return;
       }
-
-      if (data.requiresPasswordChange) {
-        router.push("/change-password");
-      } else {
-        router.push("/dashboard");
-      }
+      if (data.requiresPasswordChange) router.push("/change-password");
+      else router.push(redirectForRole(data.user?.role ?? "ANGGOTA"));
     } catch {
       setError("Terjadi kesalahan koneksi server.");
       setLoading(false);
     }
   }
 
+  const features = [
+    "Kelola anggota dengan mudah",
+    "Pantau dan kelola kegiatan",
+    "Komunikasi lebih cepat & terhubung",
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-4">
-      <div className="w-full max-w-md p-8 rounded-[20px] bg-white/85 backdrop-blur-[12px] border border-white/70 shadow-xl">
-        <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-[#0F766E] text-white flex items-center justify-center font-bold text-xl mx-auto mb-3 shadow-sm">
-            TH
-          </div>
-          <h1 className="text-xl font-bold text-[#0F172A]">Karang Taruna TUNAS HARAPAN</h1>
-          <p className="text-xs text-[#64748B] mt-1">Silakan masuk dengan akun terdaftar</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#F0FDF4] p-4">
+      <div className="flex w-full max-w-[1000px] overflow-hidden rounded-3xl bg-white shadow-2xl">
+        {/* Panel kiri: branding */}
+        <div className="relative hidden w-[480px] shrink-0 flex-col justify-between overflow-hidden bg-[#F0FDF4] p-8 lg:flex xl:w-[520px]">
+          {/* Dekorasi lingkaran hijau */}
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#BBF7D0]/60" />
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[#BBF7D0]/40" />
+          <div className="pointer-events-none absolute bottom-40 right-4 h-10 w-10 rounded-full bg-[#86EFAC]/50" />
+          <div className="pointer-events-none absolute top-52 right-24 h-6 w-6 rounded-full bg-[#4ADE80]/40" />
 
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-xs font-medium">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-[#0F172A] mb-1">Email atau Nomor Telepon</label>
-            <input
-              type="text"
-              inputMode="text"
-              autoComplete="username"
-              required
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[#0F172A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
-              placeholder="nama@email.com atau 081234567890"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#0F172A] mb-1">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 pr-10 rounded-xl border border-slate-200 bg-white text-[#0F172A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
-                placeholder="••••••••"
+          {/* Logo + nama organisasi */}
+          <div className="relative z-10">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="Logo Tunas Harapan"
+                width={52}
+                height={52}
+                className="rounded-full shadow-md"
+                priority
               />
-              <button
-                type="button"
-                aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-400 hover:text-slate-600"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              <div>
+                <p className="text-[13px] font-semibold uppercase tracking-wide text-[#15803D]">
+                  Karang Taruna
+                </p>
+                <p className="text-[15px] font-extrabold leading-tight text-[#0F172A]">
+                  TUNAS HARAPAN
+                </p>
+              </div>
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-[#0F766E] hover:bg-[#115e59] text-white text-sm font-medium shadow-md transition-all disabled:opacity-50"
-          >
-            {loading ? "Memproses..." : "Masuk"}
-          </button>
-        </form>
+          {/* Judul + deskripsi + fitur */}
+          <div className="relative z-10 mt-6 flex-1">
+            <h1 className="text-[26px] font-extrabold leading-snug text-[#0F172A]">
+              Bersama Bergerak,
+              <br />
+              Bersama Berkarya.
+            </h1>
+            <p className="mt-3 max-w-[300px] text-[13px] leading-relaxed text-[#475569]">
+              Platform digital untuk menghubungkan anggota dan menggerakkan
+              kegiatan Karang Taruna.
+            </p>
 
-        <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-[#64748B]">
-          Lupa password?{" "}
-          <Link href="/forgot-password" className="font-semibold text-[#0F766E] hover:underline">
-            Reset di sini
-          </Link>
+            <ul className="mt-5 space-y-3">
+              {features.map((f) => (
+                <li key={f} className="flex items-start gap-2.5 text-[13px] text-[#334155]">
+                  <CheckCircle2
+                    size={18}
+                    className="mt-0.5 shrink-0 text-[#16A34A]"
+                  />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Ilustrasi di bagian bawah */}
+          <div className="relative z-10 -mb-8 -mx-8 mt-6">
+            <Image
+              src="/avatar.png"
+              alt="Avatar Karang Taruna"
+              width={520}
+              height={260}
+              className="w-full object-cover"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Panel kanan: form */}
+        <div className="flex flex-1 flex-col justify-center px-6 py-8 sm:px-10 md:px-12">
+          <div className="mx-auto w-full max-w-[340px]">
+            <h2 className="text-[22px] font-extrabold text-[#0F172A]">
+              Selamat Datang Kembali! 👋
+            </h2>
+            <p className="mt-1 text-[13px] text-[#64748B]">
+              Silakan masuk untuk melanjutkan
+            </p>
+
+            {error && (
+              <div className="mt-4 rounded-xl border border-[#EF4444]/30 bg-[#FEF2F2] p-3 text-xs font-medium text-[#EF4444]">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="mt-5 space-y-4">
+              {/* Email / HP */}
+              <div>
+                <label className="mb-1.5 block text-[13px] font-medium text-[#334155]">
+                  Email atau Nomor HP
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#94A3B8]">
+                    <User size={18} />
+                  </span>
+                  <input
+                    type="text"
+                    autoComplete="username"
+                    required
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="Masukkan email atau nomor HP"
+                    className="w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] py-2.5 pl-10 pr-4 text-[14px] text-[#0F172A] placeholder-[#94A3B8] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/30"
+                  />
+                </div>
+              </div>
+
+              {/* Kata Sandi */}
+              <div>
+                <label className="mb-1.5 block text-[13px] font-medium text-[#334155]">
+                  Kata Sandi
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#94A3B8]">
+                    <User size={18} />
+                  </span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Masukkan kata sandi"
+                    className="w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] py-2.5 pl-10 pr-11 text-[14px] text-[#0F172A] placeholder-[#94A3B8] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/30"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#94A3B8] hover:text-[#64748B]"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Ingat saya + Lupa */}
+              <div className="flex items-center justify-between pt-0.5">
+                <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[#475569]">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 rounded border-[#CBD5E1] text-[#16A34A] focus:ring-[#16A34A]"
+                  />
+                  Ingat saya
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-[13px] font-medium text-[#16A34A] hover:underline"
+                >
+                  Lupa kata sandi?
+                </Link>
+              </div>
+
+              {/* Tombol masuk */}
+              <Button
+                type="submit"
+                variant="primary"
+                loading={loading}
+                disabled={loading}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[#16A34A] py-3 text-[14px] font-semibold text-white shadow-md shadow-[#16A34A]/25 hover:bg-[#15803D] focus-visible:ring-[#16A34A]"
+              >
+                Masuk
+                {!loading && <ArrowRight size={18} />}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="my-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-[#E2E8F0]" />
+              <span className="whitespace-nowrap text-[12px] text-[#94A3B8]">
+                atau masuk dengan
+              </span>
+              <div className="h-px flex-1 bg-[#E2E8F0]" />
+            </div>
+
+            {/* OAuth placeholder — skip */}
+            <p className="text-center text-[12px] italic text-[#94A3B8]">
+              Login sosial belum tersedia
+            </p>
+
+            {/* Daftar */}
+            <p className="mt-6 text-center text-[13px] text-[#64748B]">
+              Belum punya akun?{" "}
+              <Link
+                href="#"
+                className="font-semibold text-[#16A34A] hover:underline"
+              >
+                Daftar sekarang
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
