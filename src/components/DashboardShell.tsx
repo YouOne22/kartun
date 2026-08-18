@@ -105,29 +105,18 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-[#0F172A]">
             {open && <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="fixed inset-0 z-[55] bg-slate-900/30 md:hidden backdrop-blur-sm" />}
-      <aside className={`fixed inset-y-0 left-0 z-[60] flex w-[270px] flex-col border-r border-[#043C35] bg-[#06251F] p-4 transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-[60] flex w-[270px] flex-col border-r border-teal-950 bg-[#073833] p-4 transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="flex items-center justify-between gap-2 px-2 pb-4 mb-3 border-b border-white/10">
-            <div className="flex items-center gap-2.5">
-              <Image src="/logo.png" alt="Logo" width={32} height={32} className="h-8 w-8 object-contain" />
-              <div>
-                <p className="text-sm font-bold text-white">TUNAS HARAPAN</p>
-                <p className="text-[10px] text-white/60">Dusun Kemitir</p>
-              </div>
-            </div>
-            <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 md:hidden"><X size={19} /></button>
-          </div>
-
-          <div className="mb-4 px-2">
-            <button type="button" onClick={() => setProfileOpen(true)} className="flex w-full items-center gap-3 rounded-xl bg-white/5 p-2.5 text-left group hover:bg-white/10 transition-colors">
-              {user?.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} onError={() => setAvatarFailed(true)} className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#008F68]" /> : <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#008F68] text-sm font-bold text-white">{user && initials(user.fullName)}</div>}
-              <div className="min-w-0"><p className="truncate text-xs font-bold text-white group-hover:text-emerald-300">{user?.fullName}</p><p className="mt-0.5 text-[11px] text-white/60">{user && roleLabels[user.role]}</p></div>
+          <div className="mb-6 flex items-center justify-between gap-3 px-2 py-1">
+            <button type="button" onClick={() => setProfileOpen(true)} className="flex min-w-0 items-center gap-3 text-left group">
+              {user?.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} onError={() => setAvatarFailed(true)} className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#0F766E]" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-sm font-bold text-white ring-2 ring-transparent group-hover:ring-[#0F766E]">{user && initials(user.fullName)}</div>}
+              <div className="min-w-0"><p className="truncate text-sm font-bold text-teal-50 group-hover:text-[#0F766E]">{user?.fullName}</p><p className="mt-0.5 text-xs text-teal-300/70">{user && roleLabels[user.role]}</p></div>
             </button>
+            <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-teal-300/70 hover:bg-[#0F766E]/10 md:hidden"><X size={19} /></button>
           </div>
-
-          <nav aria-label="Navigasi utama" className="space-y-1">{visibleNavigation.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <Link onClick={() => setOpen(false)} key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-[#008F68] font-semibold text-white shadow-sm" : "text-white/70 hover:bg-white/10 hover:text-white"}`}><Icon aria-hidden="true" size={17} strokeWidth={active ? 2.25 : 2} />{item.label}</Link>; })}</nav>
+          <nav aria-label="Navigasi utama" className="space-y-1">{visibleNavigation.map((item) => { const Icon = item.icon; const active = pathname === item.href || pathname.startsWith(`${item.href}/`); return <Link onClick={() => setOpen(false)} key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-[#0F766E]/20 font-semibold text-teal-100" : "text-teal-100/60 hover:bg-[#0F766E]/10 hover:text-teal-50"}`}><Icon aria-hidden="true" size={17} strokeWidth={active ? 2.25 : 2} />{item.label}</Link>; })}</nav>
         </div>
-        <div className="mt-4 border-t border-white/10 pt-4"><p className="truncate px-2 text-[11px] text-white/50">ID Anggota: {user?.memberId}</p></div>
+        <div className="mt-4 border-t border-teal-900 pt-4"><p className="truncate px-2 text-[11px] text-teal-300/70">ID Anggota: {user?.memberId}</p></div>
 
       </aside>
       <div className="flex min-w-0 flex-1 flex-col md:pl-[270px]">
