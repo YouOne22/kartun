@@ -245,8 +245,13 @@ export default function LoginPage() {
             {/* Daftar */}
             <p className="mt-6 text-center text-[13px] text-[#64748B]">
               Belum punya akun?{" "}
-              <Link
-                href="#"
+                            <Link
+                href={
+                  process.env.NEXT_PUBLIC_GFORM_REGISTER_URL ??
+                  "https://docs.google.com/forms/d/e/1FAIpQLSfmjLS5032T-arEmvWZLEcdeuVWePsJgKm3PStHiljthanisA/viewform?usp=publish-editor"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-semibold text-[#008F68] hover:underline"
               >
                 Daftar sekarang
