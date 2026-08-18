@@ -60,9 +60,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F0FDF4] p-4">
-      <div className="flex w-full max-w-[1000px] overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <div className="flex w-full max-w-[1000px] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl lg:flex-row">
         {/* Panel kiri: branding */}
-        <div className="relative hidden w-[480px] shrink-0 flex-col justify-between overflow-hidden bg-[#F0FDF4] p-8 lg:flex xl:w-[520px]">
+        <div className="relative z-0 flex w-full flex-col justify-between overflow-hidden bg-[#F0FDF4] p-6 sm:p-8 lg:w-[480px] lg:shrink-0 xl:w-[520px]">
           {/* Dekorasi lingkaran hijau */}
           <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#BBF7D0]/60" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[#BBF7D0]/40" />
