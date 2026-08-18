@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -73,9 +74,7 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-4">
       <div className="w-full max-w-md p-8 rounded-[20px] bg-white/85 backdrop-blur-[12px] border border-white/70 shadow-xl">
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-[#0F766E] text-white flex items-center justify-center font-bold text-xl mx-auto mb-3 shadow-sm">
-            TH
-          </div>
+          <Image src="/logo.png" alt="Logo Tunas Harapan" width={48} height={48} className="mx-auto mb-3" />
           <h1 className="text-xl font-bold text-[#0F172A]">Reset Password</h1>
           <p className="text-xs text-[#64748B] mt-1">
             {step === "request"
