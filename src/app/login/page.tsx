@@ -239,7 +239,7 @@ export default function LoginPage() {
 
             {/* OAuth placeholder — skip */}
             <p className="text-center text-[12px] italic text-[#94A3B8]">
-              Login sosial belum tersedia
+              Login sosial media belum tersedia
             </p>
 
             {/* Daftar */}
