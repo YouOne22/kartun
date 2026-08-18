@@ -209,7 +209,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-[13px] font-medium text-[#16A34A] hover:underline"
+                  className="text-[13px] font-medium text-[#008F68] hover:underline"
                 >
                   Lupa kata sandi?
                 </Link>
@@ -221,7 +221,7 @@ export default function LoginPage() {
                 variant="primary"
                 loading={loading}
                 disabled={loading}
-                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[#16A34A] py-3 text-[14px] font-semibold text-white shadow-md shadow-[#16A34A]/25 hover:bg-[#15803D] focus-visible:ring-[#16A34A]"
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008F68] py-3 text-[14px] font-semibold text-white shadow-md shadow-[#16A34A]/25 hover:bg-[#15803D] focus-visible:ring-[#16A34A]"
               >
                 Masuk
                 {!loading && <ArrowRight size={18} />}
@@ -247,7 +247,7 @@ export default function LoginPage() {
               Belum punya akun?{" "}
               <Link
                 href="#"
-                className="font-semibold text-[#16A34A] hover:underline"
+                className="font-semibold text-[#008F68] hover:underline"
               >
                 Daftar sekarang
               </Link>
