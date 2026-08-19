@@ -82,14 +82,11 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href={
-                  process.env.NEXT_PUBLIC_GFORM_REGISTER_URL ??
-                  "https://docs.google.com/forms/d/e/1FAIpQLSfmjLS5032T-arEmvWZLEcdeuVWePsJgKm3PStHiljthanisA/viewform?usp=publish-editor"
-                }
+              href="/login"
               onClick={() => setOpen(false)}
               className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#008F68] px-4 py-3 text-sm font-semibold text-white"
             >
-              Daftar ke Aplikasi
+              Masuk ke Aplikasi
               <ArrowRight size={16} />
             </Link>
           </div>
