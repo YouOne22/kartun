@@ -279,7 +279,6 @@ export default async function LandingPage() {
               <Link href="#fitur" className="hover:text-[#008F68]">Fitur</Link>
               <Link href="#kegiatan" className="hover:text-[#008F68]">Kegiatan</Link>
               <Link href="#tentang" className="hover:text-[#008F68]">Tentang</Link>
-              <Link href="/login" className="hover:text-[#008F68]">Masuk</Link>
             </nav>
           </div>
           <p className="mt-8 border-t border-[#DCE8E3] pt-6 text-center text-xs text-[#52656B]">&copy; {new Date().getFullYear()} Karang Taruna TUNAS HARAPAN &middot; Dusun Kemitir. Seluruh hak cipta dilindungi.</p>
