@@ -70,7 +70,10 @@ export default async function LandingPage() {
             <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-[#06251F] sm:text-5xl lg:text-[4rem]">Bersama Bergerak,<br />Bersama Berkarya.</h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-[#52656B] sm:text-lg">Platform digital untuk menghubungkan anggota dan menggerakkan kegiatan Karang Taruna.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#008F68] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#007A59] hover:shadow-md">Masuk ke Aplikasi <ArrowRight size={18} /></Link>
+              <Link href={
+                  process.env.NEXT_PUBLIC_GFORM_REGISTER_URL ??
+                  "https://docs.google.com/forms/d/e/1FAIpQLSfmjLS5032T-arEmvWZLEcdeuVWePsJgKm3PStHiljthanisA/viewform?usp=publish-editor"
+                } className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#008F68] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#007A59] hover:shadow-md">Daftar untuk login <ArrowRight size={18} /></Link>
               <Link href="#kegiatan" className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#008F68]/25 bg-white px-6 py-3.5 text-sm font-semibold text-[#008F68] transition-colors hover:bg-[#EAF7F0]"><CalendarClock size={18} /> Lihat Kegiatan</Link>
             </div>
           </div>
