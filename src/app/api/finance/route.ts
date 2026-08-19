@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "BENDAHARA"]);
+  const auth = await authorized(["SEKRETARIS", "BENDAHARA"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const amount = positiveAmount(body.amount), category = safeText(body.category, 50);
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "BENDAHARA"]);
+  const auth = await authorized(["SEKRETARIS", "BENDAHARA"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const id = safeText(body.id, 50);
@@ -62,7 +62,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await authorized(["KETUA", "BENDAHARA"]);
+  const auth = await authorized(["SEKRETARIS", "BENDAHARA"]);
   if ("response" in auth) return auth.response;
   const url = new URL(request.url);
   let id = url.searchParams.get("id");

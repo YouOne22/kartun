@@ -69,7 +69,7 @@ export default function FinancePage() {
     await showSuccess("Transaksi kas berhasil dihapus.");
   }
 
-  const canManage = !!user && ["KETUA", "BENDAHARA"].includes(user.role);
+  const canManage = !!user && ["SEKRETARIS", "BENDAHARA"].includes(user.role);
   const transactions = useMemo(() => data?.transactions || [], [data]);
 
   const columns = [
@@ -155,7 +155,7 @@ export default function FinancePage() {
 
         {!canManage && (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
-            Anda dapat melihat ringkasan dan riwayat kas. Penambahan transaksi hanya tersedia untuk Ketua dan Bendahara.
+            Anda dapat melihat ringkasan dan riwayat kas. Penambahan transaksi hanya tersedia untuk Sekretaris dan Bendahara.
           </div>
         )}
 

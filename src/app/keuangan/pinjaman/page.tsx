@@ -174,7 +174,7 @@ export default function LoansPage() {
     loadData();
   }
 
-  const canApprove = !!user && ["KETUA", "BENDAHARA"].includes(user.role);
+  const canApprove = !!user && ["KETUA", "SEKRETARIS", "BENDAHARA"].includes(user.role);
 
   const columns = [
     { key: "borrower", header: "Peminjam", render: (l: Loan) => <div><p className="font-semibold text-slate-900">{l.borrower.fullName}</p><p className="font-mono text-xs text-slate-500">{l.borrower.memberId}</p></div> },

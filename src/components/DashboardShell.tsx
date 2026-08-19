@@ -37,7 +37,7 @@ const navigation: NavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/keanggotaan/data", label: "Anggota", icon: Users },
   { href: "/keanggotaan/kartu-digital", label: "Kartu Digital", icon: QrCode },
-  { href: "/keuangan/pemasukan", label: "Keuangan", icon: Wallet, roles: ["KETUA", "BENDAHARA"] },
+  { href: "/keuangan/pemasukan", label: "Keuangan", icon: Wallet, roles: ["SEKRETARIS", "BENDAHARA"] },
   { href: "/keuangan/pinjaman", label: "Pinjaman", icon: Wallet, roles: ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"] },
   { href: "/inventaris/data-barang", label: "Inventaris", icon: Package },
   { href: "/kegiatan/agenda", label: "Kegiatan", icon: CalendarDays },

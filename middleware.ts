@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (pathname === "/kegiatan/scan-qr" && request.nextUrl.searchParams.get("mode") === "admin" && !["KETUA", "SEKRETARIS", "PENGURUS"].includes(session.role)) {
+  if (pathname === "/kegiatan/scan-qr" && request.nextUrl.searchParams.get("mode") === "admin" && !["KETUA", "SEKRETARIS"].includes(session.role)) {
     return NextResponse.redirect(new URL("/kegiatan/scan-qr?mode=self", request.url));
   }
 
