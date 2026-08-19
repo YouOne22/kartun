@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authorized, errorResponse, positiveAmount, safeText } from "@/lib/api";
+import { authorized, dateOrNull, errorResponse, positiveAmount, safeText } from "@/lib/api";
 
 type CashSourceFilter = "INDUK" | "JIMPITAN";
 
@@ -32,10 +32,11 @@ export async function POST(request: Request) {
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const amount = positiveAmount(body.amount), category = safeText(body.category, 50);
+  const transactionDate = dateOrNull(body.transactionDate) || new Date();
   const type = body.type === "EXPENSE" ? "EXPENSE" : body.type === "INCOME" ? "INCOME" : null;
   const sumberKas = body.sumberKas === "JIMPITAN" ? "JIMPITAN" : body.sumberKas === "INDUK" ? "INDUK" : null;
   if (!amount || !category || !type || !sumberKas) return errorResponse("Jenis, kategori, sumber kas, dan nominal valid wajib diisi.");
-  try { return NextResponse.json({ transaction: await prisma.cashTransaction.create({ data: { type, amount, category, sumberKas, description: safeText(body.description, 1000) || null, createdBy: auth.session.userId } }) }, { status: 201 }); }
+  try { return NextResponse.json({ transaction: await prisma.cashTransaction.create({ data: { transactionDate, type, amount, category, sumberKas, description: safeText(body.description, 1000) || null, createdBy: auth.session.userId } }) }, { status: 201 }); }
   catch { return errorResponse("Transaksi kas gagal disimpan.", 400); }
 }
 
@@ -46,6 +47,7 @@ export async function PATCH(request: Request) {
   const id = safeText(body.id, 50);
   const amount = positiveAmount(body.amount);
   const category = safeText(body.category, 50);
+  const transactionDate = dateOrNull(body.transactionDate);
   const type = body.type === "EXPENSE" ? "EXPENSE" : body.type === "INCOME" ? "INCOME" : null;
   const sumberKas = body.sumberKas === "JIMPITAN" ? "JIMPITAN" : body.sumberKas === "INDUK" ? "INDUK" : null;
   if (!id || !amount || !category || !type || !sumberKas) return errorResponse("Data transaksi kas wajib lengkap.");
@@ -53,7 +55,14 @@ export async function PATCH(request: Request) {
   try {
     const updated = await prisma.cashTransaction.update({
       where: { id },
-      data: { type, amount, category, sumberKas, description: safeText(body.description, 1000) || null }
+      data: { 
+        transactionDate: transactionDate || undefined,
+        type, 
+        amount, 
+        category, 
+        sumberKas, 
+        description: safeText(body.description, 1000) || null 
+      }
     });
     return NextResponse.json({ transaction: updated });
   } catch {

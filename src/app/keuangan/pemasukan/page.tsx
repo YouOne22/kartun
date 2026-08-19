@@ -23,7 +23,14 @@ export default function FinancePage() {
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-      const [form, setForm] = useState({ type: "INCOME" as "INCOME" | "EXPENSE", sumberKas: "INDUK" as "INDUK" | "JIMPITAN", category: "", amount: "", description: "" });
+  const [form, setForm] = useState({ 
+    transactionDate: new Date().toISOString().split("T")[0],
+    type: "INCOME" as "INCOME" | "EXPENSE", 
+    sumberKas: "INDUK" as "INDUK" | "JIMPITAN", 
+    category: "", 
+    amount: "", 
+    description: "" 
+  });
   const [sumberFilter, setSumberFilter] = useState<"ALL" | "INDUK" | "JIMPITAN">("ALL");
 
   async function loadData() {
@@ -53,7 +60,14 @@ export default function FinancePage() {
     const response = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const result = await response.json() as { message?: string };
         if (!response.ok) return showError(result.message || "Transaksi kas gagal disimpan.");
-    setForm({ type: "INCOME", sumberKas: "INDUK", category: "", amount: "", description: "" });
+    setForm({ 
+      transactionDate: new Date().toISOString().split("T")[0],
+      type: "INCOME", 
+      sumberKas: "INDUK", 
+      category: "", 
+      amount: "", 
+      description: "" 
+    });
     setEditingId(null);
     setIsModalOpen(false);
     await loadData();
@@ -89,8 +103,9 @@ export default function FinancePage() {
             <button
               title="Edit Transaksi"
               onClick={() => {
-                                setEditingId(t.id);
+                setEditingId(t.id);
                 setForm({
+                  transactionDate: t.transactionDate ? new Date(t.transactionDate).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
                   type: t.type,
                   sumberKas: t.sumberKas,
                   category: t.category,
@@ -124,7 +139,18 @@ export default function FinancePage() {
             <p className="text-sm text-slate-500">Pencatatan pemasukan, pengeluaran, dan saldo kas organisasi.</p>
           </div>
           {canManage && (
-                        <Button onClick={() => { setEditingId(null); setForm({ type: "INCOME", sumberKas: "INDUK", category: "", amount: "", description: "" }); setIsModalOpen(true); }}>
+            <Button onClick={() => { 
+              setEditingId(null); 
+              setForm({ 
+                transactionDate: new Date().toISOString().split("T")[0],
+                type: "INCOME", 
+                sumberKas: "INDUK", 
+                category: "", 
+                amount: "", 
+                description: "" 
+              }); 
+              setIsModalOpen(true); 
+            }}>
               <Plus size={17} /> Tambah Transaksi
             </Button>
           )}
@@ -167,6 +193,9 @@ export default function FinancePage() {
           size="md"
         >
           <form onSubmit={saveTransaction} className="space-y-4">
+            <Field label="Tanggal Transaksi">
+              <input required type="date" value={form.transactionDate} onChange={(event) => setForm({ ...form, transactionDate: event.target.value })} className="field" />
+            </Field>
             <Field label="Sumber Kas">
               <select required value={form.sumberKas} onChange={(event) => setForm({ ...form, sumberKas: event.target.value as "INDUK" | "JIMPITAN" })} className="field">
                 <option value="INDUK">Kas Induk</option>

@@ -86,7 +86,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#008F68] px-4 py-3 text-sm font-semibold text-white"
             >
-              Masuk ke Aplikasi
+              Daftar ke Aplikasi
               <ArrowRight size={16} />
             </Link>
           </div>
