@@ -146,7 +146,7 @@ export default function AgendaPage() {
             <h2 className="text-xl font-bold">Agenda Kegiatan</h2>
             <p className="text-sm text-slate-500">Jadwal, lokasi, dan status dokumentasi kegiatan.</p>
           </div>
-          {user && ["KETUA", "SEKRETARIS"].includes(user.role) && (
+          {user && ["KETUA", "SEKRETARIS", "PENGURUS"].includes(user.role) && (
             <Button onClick={() => { setEditingId(null); setForm({ title: "", eventDate: "", location: "", description: "", visibility: "PUBLIC" }); setIsModalOpen(true); }}>
               <Plus size={17} /> Buat Kegiatan
             </Button>
@@ -195,7 +195,7 @@ export default function AgendaPage() {
                       <span>QR Absensi</span>
                     </button>
 
-                    {user && ["KETUA", "SEKRETARIS"].includes(user.role) && (
+                    {user && ["KETUA", "SEKRETARIS", "PENGURUS"].includes(user.role) && (
                       <div className="flex items-center gap-1">
                         <button
                           title="Edit Kegiatan"
@@ -319,3 +319,4 @@ export default function AgendaPage() {
     </DashboardShell>
   );
 }
+

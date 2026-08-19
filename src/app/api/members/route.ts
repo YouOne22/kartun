@@ -65,7 +65,7 @@ const avatarExtensions: Record<string, string> = {
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
 export async function GET(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS", "BENDAHARA", "ANGGOTA"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA", "ANGGOTA"]);
   if ("response" in auth) return auth.response;
   try {
     const purpose = new URL(request.url).searchParams.get("purpose");
@@ -142,7 +142,7 @@ export async function PATCH(request: Request) {
   const avatar = value("avatar");
 
     const memberStatus = isKetua ? enumValue(value("memberStatus"), ["AKTIF", "NON_AKTIF"] as const, existing.memberStatus) : existing.memberStatus;
-  const role = isKetua ? enumValue(value("role"), ["KETUA", "SEKRETARIS", "BENDAHARA", "ANGGOTA"] as const, existing.role) : existing.role;
+  const role = isKetua ? enumValue(value("role"), ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA", "ANGGOTA"] as const, existing.role) : existing.role;
   const section = isKetua ? (safeText(value("section"), 100) || null) : existing.section;
   if (!fullName || !phoneWa) {
     return errorResponse("Nama dan WhatsApp wajib diisi.");
@@ -212,7 +212,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
 
   try {
@@ -241,7 +241,7 @@ export async function DELETE(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
 
   let formData: FormData;
@@ -258,7 +258,7 @@ export async function POST(request: Request) {
   const phoneWa = normalizePhoneNumber(safeText(value("phoneWa"), 20));
   const gender = enumValue(value("gender"), ["L", "P"] as const, "L");
   const memberStatus = enumValue(value("memberStatus"), ["AKTIF", "NON_AKTIF"] as const, "AKTIF");
-  const role = enumValue(value("role"), ["KETUA", "SEKRETARIS", "BENDAHARA", "ANGGOTA"] as const, "ANGGOTA");
+  const role = enumValue(value("role"), ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA", "ANGGOTA"] as const, "ANGGOTA");
   const birthDate = dateOrNull(value("birthDate"));
   const joinDate = dateOrNull(value("joinDate"));
   const avatar = value("avatar");

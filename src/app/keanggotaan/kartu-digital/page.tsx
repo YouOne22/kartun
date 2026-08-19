@@ -70,8 +70,9 @@ export default function DigitalCardPage() {
   }
 
   const roleLabels: Record<SessionUser["role"], string> = {
-    KETUA: "Ketua",
+        KETUA: "Ketua",
     SEKRETARIS: "Sekretaris",
+    PENGURUS: "Pengurus",
     BENDAHARA: "Bendahara",
     ANGGOTA: "Anggota",
   };

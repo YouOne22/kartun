@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const title = safeText(body.title, 150), description = safeText(body.description, 2000) || null;
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const pollingId = safeText(body.pollingId, 50);
@@ -60,4 +60,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ vote }, { status: 201 });
   } catch { return errorResponse("Anda sudah memberikan suara pada polling ini.", 409); }
 }
+
 

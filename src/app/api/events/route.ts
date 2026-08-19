@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const title = safeText(body.title, 150), location = safeText(body.location, 100), eventDate = dateOrNull(body.eventDate);
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const id = safeText(body.id, 50), title = safeText(body.title, 150), location = safeText(body.location, 100), eventDate = dateOrNull(body.eventDate);
@@ -38,7 +38,7 @@ export async function PATCH(request: Request) {
   catch { return errorResponse("Kegiatan gagal diperbarui.", 400); }
 }
 export async function DELETE(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const url = new URL(request.url);
   let id = url.searchParams.get("id");

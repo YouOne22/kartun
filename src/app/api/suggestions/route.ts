@@ -3,7 +3,7 @@ import { getSession, hasRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { Role } from "@prisma/client";
 
-const MANAGEMENT_ROLES: Role[] = ["KETUA", "SEKRETARIS", "BENDAHARA"];
+const MANAGEMENT_ROLES: Role[] = ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"];
 
 export async function POST(req: NextRequest) {
   try {

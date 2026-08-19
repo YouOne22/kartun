@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const id = safeText(body.id, 50), status = body.status === "APPROVED" || body.status === "REJECTED" ? body.status : null;

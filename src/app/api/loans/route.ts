@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { authorized, errorResponse, positiveAmount, safeText, dateOrNull } from "@/lib/api";
 
 export async function GET() {
-  const auth = await authorized(["KETUA", "SEKRETARIS", "BENDAHARA"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"]);
   if ("response" in auth) return auth.response;
   try { return NextResponse.json({ loans: await prisma.financialLoan.findMany({ include: { borrower: { select: { fullName: true, memberId: true } }, approver: { select: { fullName: true } }, payments: true }, orderBy: { createdAt: "desc" } }) }); }
   catch { return errorResponse("Data pinjaman belum tersedia.", 503); }
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS", "BENDAHARA"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const amount = positiveAmount(body.amount);
@@ -92,3 +92,4 @@ export async function PATCH(request: Request) {
   try { return NextResponse.json({ loan: await prisma.financialLoan.update({ where: { id }, data: { status, approvedBy: auth.session.userId } }) }); }
   catch { return errorResponse("Status pinjaman gagal diperbarui.", 400); }
 }
+

@@ -25,7 +25,7 @@ export type SessionUser = {
   education: string | null;
     occupation: string | null;
   section: string | null;
-  role: "KETUA" | "SEKRETARIS" | "BENDAHARA" | "ANGGOTA";
+  role: "KETUA" | "SEKRETARIS" | "PENGURUS" | "BENDAHARA" | "ANGGOTA";
   memberStatus: string | null;
   isDefaultPassword: boolean;
   avatarUrl: string | null;
@@ -38,7 +38,7 @@ const navigation: NavigationItem[] = [
   { href: "/keanggotaan/data", label: "Anggota", icon: Users },
   { href: "/keanggotaan/kartu-digital", label: "Kartu Digital", icon: QrCode },
   { href: "/keuangan/pemasukan", label: "Keuangan", icon: Wallet, roles: ["KETUA", "BENDAHARA"] },
-  { href: "/keuangan/pinjaman", label: "Pinjaman", icon: Wallet, roles: ["KETUA", "SEKRETARIS", "BENDAHARA"] },
+  { href: "/keuangan/pinjaman", label: "Pinjaman", icon: Wallet, roles: ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"] },
   { href: "/inventaris/data-barang", label: "Inventaris", icon: Package },
   { href: "/kegiatan/agenda", label: "Kegiatan", icon: CalendarDays },
   { href: "/kegiatan/scan-qr", label: "Scan QRCode", icon: Camera },
@@ -46,12 +46,12 @@ const navigation: NavigationItem[] = [
   { href: "/kegiatan/laporan", label: "Laporan", icon: FileText },
   { href: "/informasi/pengumuman", label: "Pengumuman", icon: Megaphone },
   { href: "/kritik-saran", label: "Kritik & Saran", icon: MessageSquare },
-  { href: "/kritik-saran/kelola", label: "Kelola Kritik & Saran", icon: MessageSquare, roles: ["KETUA", "SEKRETARIS", "BENDAHARA"] },
+  { href: "/kritik-saran/kelola", label: "Kelola Kritik & Saran", icon: MessageSquare, roles: ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"] },
   { href: "/ruang-warga", label: "Ruang Warga", icon: MessageCircle },
 ];
 
 const initials = (value: string) => value.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "?";
-const roleLabels: Record<SessionUser["role"], string> = { KETUA: "Ketua Karang Taruna", SEKRETARIS: "Sekretaris Karang Taruna", BENDAHARA: "Bendahara Karang Taruna", ANGGOTA: "Anggota Karang Taruna" };
+const roleLabels: Record<SessionUser["role"], string> = { KETUA: "Ketua Karang Taruna", SEKRETARIS: "Sekretaris Karang Taruna", PENGURUS: "Pengurus Karang Taruna", BENDAHARA: "Bendahara Karang Taruna", ANGGOTA: "Anggota Karang Taruna" };
 
 
 export function DashboardShell({ children, title }: { children: ReactNode; title: string }) {
@@ -206,4 +206,5 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
     </div>
   );
 }
+
 

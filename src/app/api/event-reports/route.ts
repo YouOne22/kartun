@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const eventId = safeText(body.eventId, 50), notlenText = safeText(body.notlenText, 20000);
@@ -22,3 +22,4 @@ export async function POST(request: Request) {
   try { return NextResponse.json({ report: await prisma.eventReport.upsert({ where: { eventId }, create: { eventId, notlenText, createdBy: auth.session.userId }, update: { notlenText, createdBy: auth.session.userId } }) }); }
   catch { return errorResponse("Notulen gagal disimpan.", 400); }
 }
+

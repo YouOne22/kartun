@@ -3,10 +3,10 @@ import type { Role } from "@prisma/client";
 import { getSession } from "@/lib/auth";
 
 export const roleGroups = {
-  leadership: ["KETUA", "SEKRETARIS"] as Role[],
+  leadership: ["KETUA", "SEKRETARIS", "PENGURUS", "PENGURUS"] as Role[],
   finance: ["KETUA", "BENDAHARA"] as Role[],
-  loanView: ["KETUA", "SEKRETARIS", "BENDAHARA"] as Role[],
-  allStaff: ["KETUA", "SEKRETARIS", "BENDAHARA"] as Role[],
+  loanView: ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"] as Role[],
+  allStaff: ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"] as Role[],
 } as const;
 
 export function errorResponse(message: string, status = 400) {
@@ -34,3 +34,4 @@ export function dateOrNull(value: unknown) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
+

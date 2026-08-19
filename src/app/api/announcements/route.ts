@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const title = safeText(body.title, 150), content = safeText(body.content, 10000);
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const id = safeText(body.id, 50);
@@ -54,7 +54,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const url = new URL(request.url);
   let id = url.searchParams.get("id");
@@ -74,3 +74,4 @@ export async function DELETE(request: Request) {
     return errorResponse("Pengumuman gagal dihapus.", 400);
   }
 }
+

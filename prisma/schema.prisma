@@ -7,8 +7,9 @@ datasource db {
 }
 
 enum Role {
-  KETUA
+    KETUA
   SEKRETARIS
+  PENGURUS
   BENDAHARA
   ANGGOTA
 

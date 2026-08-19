@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const itemCode = safeText(body.itemCode, 30), itemName = safeText(body.itemName, 100), totalQty = Number(body.totalQty);
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   catch { return errorResponse("Barang gagal disimpan. Kode mungkin sudah digunakan.", 409); }
 }
 export async function PATCH(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const body = await request.json() as Record<string, unknown>;
   const id = safeText(body.id, 50);
@@ -51,7 +51,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await authorized(["KETUA", "SEKRETARIS"]);
+  const auth = await authorized(["KETUA", "SEKRETARIS", "PENGURUS"]);
   if ("response" in auth) return auth.response;
   const url = new URL(request.url);
   let id = url.searchParams.get("id");

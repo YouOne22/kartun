@@ -7,7 +7,7 @@ import Image from "next/image";
 import Button from "@/components/Button";
 
 type SessionUser = {
-  role: "KETUA" | "SEKRETARIS" | "BENDAHARA" | "ANGGOTA";
+  role: "KETUA" | "SEKRETARIS" | "PENGURUS" | "BENDAHARA" | "ANGGOTA";
 };
 
 function redirectForRole(role: SessionUser["role"]) {

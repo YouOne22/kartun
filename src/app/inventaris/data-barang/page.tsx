@@ -98,7 +98,7 @@ export default function InventoryPage() {
     await loadData(); await showSuccess(status === "APPROVED" ? "Peminjaman disetujui." : "Peminjaman ditolak.");
   }
 
-  const canManage = !!user && ["KETUA", "SEKRETARIS"].includes(user.role);
+  const canManage = !!user && ["KETUA", "SEKRETARIS", "PENGURUS"].includes(user.role);
 
   const borrowingColumns = [
     { key: "item", header: "Barang", render: (b: Borrowing) => (<><p className="font-semibold">{b.item.itemName}</p><p className="font-mono text-xs text-slate-500">{b.item.itemCode}</p></>) },
@@ -283,3 +283,4 @@ export default function InventoryPage() {
     </DashboardShell>
   );
 }
+

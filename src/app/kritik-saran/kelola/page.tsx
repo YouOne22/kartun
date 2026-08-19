@@ -64,8 +64,9 @@ export default function KelolaKritikSaranPage() {
   };
 
   const roleLabels: Record<string, string> = {
-    KETUA: "Ketua",
+        KETUA: "Ketua",
     SEKRETARIS: "Sekretaris",
+    PENGURUS: "Pengurus",
     BENDAHARA: "Bendahara",
     ANGGOTA: "Anggota",
   };

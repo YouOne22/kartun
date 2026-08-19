@@ -156,7 +156,7 @@ export default function CommunityPage() {
     }
   }
 
-  const canCreatePoll = user && ["KETUA", "SEKRETARIS"].includes(user.role);
+  const canCreatePoll = user && ["KETUA", "SEKRETARIS", "PENGURUS", "PENGURUS"].includes(user.role);
 
   return (
     <DashboardShell title="Ruang Warga">
@@ -389,3 +389,4 @@ export default function CommunityPage() {
     </DashboardShell>
   );
 }
+

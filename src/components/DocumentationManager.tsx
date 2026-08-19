@@ -169,7 +169,7 @@ export function DocumentationManager({ moderationOnly = false }: { moderationOnl
     await showSuccess("Dokumentasi berhasil dihapus.");
   }
 
-  const canModerate = !!user && ["KETUA", "SEKRETARIS"].includes(user.role);
+  const canModerate = !!user && ["KETUA", "SEKRETARIS", "PENGURUS", "PENGURUS"].includes(user.role);
 
   return (
     <div className="space-y-5">
@@ -460,3 +460,4 @@ export function DocumentationManager({ moderationOnly = false }: { moderationOnl
     </div>
   );
 }
+

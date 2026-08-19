@@ -6,7 +6,7 @@ import { Send, AlertCircle, CheckCircle, UserCircle, Shield } from "lucide-react
 import { showSuccess, showError } from "@/components/AlertProvider";
 import { DashboardShell, type SessionUser } from "@/components/DashboardShell";
 
-const ADMIN_ROLES: SessionUser["role"][] = ["KETUA", "SEKRETARIS", "BENDAHARA"];
+const ADMIN_ROLES: SessionUser["role"][] = ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"];
 
 export default function KritikSaranPage() {
   const [content, setContent] = useState("");

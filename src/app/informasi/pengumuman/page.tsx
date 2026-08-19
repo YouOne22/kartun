@@ -90,7 +90,7 @@ export default function AnnouncementsPage() {
     await showSuccess("Pengumuman berhasil dihapus.");
   }
 
-  const canManage = !!user && ["KETUA", "SEKRETARIS"].includes(user.role);
+  const canManage = !!user && ["KETUA", "SEKRETARIS", "PENGURUS"].includes(user.role);
 
   return (
     <DashboardShell title="Pengumuman">
@@ -209,3 +209,4 @@ export default function AnnouncementsPage() {
     </DashboardShell>
   );
 }
+

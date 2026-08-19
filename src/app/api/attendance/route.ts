@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const eventToken = safeText(body.eventToken, 255), memberToken = safeText(body.memberToken, 255);
   const requestedMethod = body.scanMethod === "ADMIN_SCAN" ? "ADMIN_SCAN" : "SELF_SCAN";
   if (!eventToken) return errorResponse("QR kegiatan wajib dipindai.");
-  if (requestedMethod === "ADMIN_SCAN" && !["KETUA", "SEKRETARIS"].includes(auth.session.role)) return errorResponse("Mode scan admin hanya untuk Ketua atau Sekretaris.", 403);
+  if (requestedMethod === "ADMIN_SCAN" && !["KETUA", "SEKRETARIS", "PENGURUS"].includes(auth.session.role)) return errorResponse("Mode scan admin hanya untuk Ketua atau Sekretaris.", 403);
   try {
     const event = await prisma.event.findUnique({ where: { eventQrToken: eventToken }, select: { id: true, eventDate: true } });
     if (!event) return errorResponse("QR kegiatan tidak valid.", 404);

@@ -10,11 +10,11 @@ import Modal from "@/components/Modal";
 import ResponsiveTable from "@/components/ResponsiveTable";
 
 type Member = { id:string; memberId:string; fullName:string; email:string; gender:"L"|"P"; birthPlace:string|null; birthDate:string|null; phoneWa:string; dusun:string; rt:string; rw:string; address:string|null; education:string|null; occupation:string|null; section:string|null; joinDate:string; role:string; memberStatus:string; avatarUrl:string|null };
-type Form = { id?:string; fullName:string; email:string; gender:"L"|"P"; birthPlace:string; birthDate:string; phoneWa:string; dusun:string; rt:string; rw:string; address:string; education:string; occupation:string; section:string; joinDate:string; memberStatus:"AKTIF"|"NON_AKTIF"; role:"KETUA"|"SEKRETARIS"|"BENDAHARA"|"ANGGOTA"; avatarFile:File|null };
+type Form = { id?:string; fullName:string; email:string; gender:"L"|"P"; birthPlace:string; birthDate:string; phoneWa:string; dusun:string; rt:string; rw:string; address:string; education:string; occupation:string; section:string; joinDate:string; memberStatus:"AKTIF"|"NON_AKTIF"; role:"KETUA"|"SEKRETARIS"|"PENGURUS"|"BENDAHARA"|"ANGGOTA"; avatarFile:File|null };
 const initial:Form = { fullName:"", email:"", gender:"L", birthPlace:"", birthDate:"", phoneWa:"", dusun:"Kemitir", rt:"", rw:"", address:"", education:"", occupation:"", section:"", joinDate:"", memberStatus:"AKTIF", role:"ANGGOTA", avatarFile:null };
 const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle:"medium" });
 const formatDate = (v:string|null) => v && !Number.isNaN(new Date(v).getTime()) ? dateFormat.format(new Date(v)) : "-";
-const roleLabel = (v:string) => ({ KETUA:"Ketua", SEKRETARIS:"Sekretaris", BENDAHARA:"Bendahara", ANGGOTA:"Anggota" }[v] || v);
+const roleLabel = (v:string) => ({ KETUA:"Ketua", SEKRETARIS:"Sekretaris", PENGURUS:"Pengurus", BENDAHARA:"Bendahara", ANGGOTA:"Anggota" }[v] || v);
 
 export default function MembersPage(){
  const [members,setMembers]=useState<Member[]>([]),[query,setQuery]=useState(""),[user,setUser]=useState<SessionUser|null>(null),[form,setForm]=useState(initial),[selected,setSelected]=useState<Member|null>(null),[modal,setModal]=useState<"add"|"edit"|"detail"|null>(null),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false);
@@ -48,7 +48,7 @@ export default function MembersPage(){
      section: m.section || "",
      joinDate: m.joinDate ? m.joinDate.split("T")[0] : "",
      memberStatus: (m.memberStatus as "AKTIF" | "NON_AKTIF") || "AKTIF",
-     role: (m.role as "KETUA" | "SEKRETARIS" | "BENDAHARA" | "ANGGOTA") || "ANGGOTA",
+               role: (m.role as "KETUA" | "SEKRETARIS" | "PENGURUS" | "BENDAHARA" | "ANGGOTA") || "ANGGOTA",
      avatarFile: null,
    });
    setModal("edit");
@@ -90,8 +90,8 @@ export default function MembersPage(){
    }
  }
  async function add(e:FormEvent){e.preventDefault();setSaving(true);try{const data=new FormData();Object.entries(form).forEach(([key,value])=>{if(key!=="avatarFile"&&key!=="id"&&typeof value==="string")data.append(key,value)});if(form.avatarFile)data.append("avatar",form.avatarFile);const r=await fetch("/api/members",{method:"POST",body:data}),d=await r.json() as {message?:string};if(!r.ok){await showError(d.message||"Anggota gagal ditambahkan.");return}setModal(null);setForm({...initial});await load();await showSuccess("Anggota berhasil ditambahkan.")}catch{await showError("Anggota gagal ditambahkan. Periksa koneksi Anda.")}finally{setSaving(false)}}
- const canManage=!!user&&["KETUA","SEKRETARIS"].includes(user.role);
- const canDelete=!!user&&["KETUA","SEKRETARIS"].includes(user.role);
+ const canManage=!!user&&["KETUA","SEKRETARIS","PENGURUS"].includes(user.role);
+ const canDelete=!!user&&["KETUA","SEKRETARIS","PENGURUS"].includes(user.role);
 
  const columns = [
    {
@@ -261,7 +261,7 @@ export default function MembersPage(){
               {user?.role === "KETUA" && (<Field label="Seksi / Jabatan Pengurus"><input maxLength={100} value={form.section} onChange={e=>set("section",e.target.value)} className="field" placeholder="cth: Humas, Perlengkapan, ..."/></Field>)}
              <Field label="Tanggal bergabung"><input type="date" value={form.joinDate} onChange={e=>set("joinDate",e.target.value)} className="field"/></Field>
               {(modal === "add" || modal === "edit") && (<Field label="Status anggota"><select value={form.memberStatus} onChange={e=>set("memberStatus",e.target.value)} className="field"><option value="AKTIF">Aktif</option><option value="NON_AKTIF">Nonaktif</option></select></Field>)}
-             {(modal === "add" || modal === "edit") && (<Field label="Role"><select value={form.role} onChange={e=>set("role",e.target.value)} className="field"><option value="ANGGOTA">Anggota</option><option value="KETUA">Ketua</option><option value="SEKRETARIS">Sekretaris</option><option value="BENDAHARA">Bendahara</option></select></Field>)}
+             {(modal === "add" || modal === "edit") && (<Field label="Role"><select value={form.role} onChange={e=>set("role",e.target.value)} className="field"><option value="ANGGOTA">Anggota</option><option value="KETUA">Ketua</option><option value="SEKRETARIS">Sekretaris</option><option value="PENGURUS">Pengurus</option><option value="BENDAHARA">Bendahara</option></select></Field>)}
              <Field label="Alamat lengkap" wide><textarea rows={3} maxLength={1000} value={form.address} onChange={e=>set("address",e.target.value)} className="field resize-y"/></Field>
              <Field label="Foto profil" wide><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e=>set("avatarFile",e.target.files?.[0]||null)} className="field file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-teal-700"/><p className="mt-1 text-[11px] text-slate-500">{modal === "edit" ? "Biarkan kosong jika tidak ingin mengubah foto profil." : "JPG, PNG, WebP, atau GIF. Maksimal 5 MB."}</p></Field>
            </div>
