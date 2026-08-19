@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+﻿import { randomUUID } from "node:crypto";
 import { put, del } from "@vercel/blob";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -286,8 +286,18 @@ export async function POST(request: Request) {
     }
 
     const year = new Date().getFullYear();
-    const count = await prisma.user.count({ where: { memberId: { startsWith: `KT-TH-${year}-` } } });
-    const memberId = `KT-TH-${year}-${String(count + 1).padStart(3, "0")}`;
+    const latestMember = await prisma.user.findFirst({
+      where: { memberId: { startsWith: `KT-TH-${year}-` } },
+      orderBy: { memberId: "desc" },
+    });
+    let nextSeq = 1;
+    if (latestMember?.memberId) {
+      const parts = latestMember.memberId.split("-");
+      const seqStr = parts[parts.length - 1];
+      const seqNum = parseInt(seqStr, 10);
+      nextSeq = isNaN(seqNum) ? 1 : seqNum + 1;
+    }
+    const memberId = `KT-TH-${year}-${String(nextSeq).padStart(3, "0")}`;
     const passwordHash = await hash(process.env.DEFAULT_PASSWORD || "kartunmaju", 12);
     const member = await prisma.user.create({
       data: {

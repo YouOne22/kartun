@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+﻿import { randomUUID } from "node:crypto";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -22,8 +22,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Data anggota diperbarui.", memberId: user.memberId });
     }
     const year = new Date().getFullYear();
-    const count = await prisma.user.count({ where: { memberId: { startsWith: `KT-TH-${year}-` } } });
-    const user = await prisma.user.create({ data: { memberId: `KT-TH-${year}-${String(count + 1).padStart(3, "0")}`, fullName, email, passwordHash: await hash(process.env.DEFAULT_PASSWORD || "kartunmaju", 12), isDefaultPassword: true, gender: body.gender === "P" ? "P" : "L", birthPlace: safeText(body.birth_place, 50) || null, birthDate, phoneWa, rt: safeText(body.rt, 5) || "-", rw: safeText(body.rw, 5) || "-", address: safeText(body.address, 2000) || null, education: safeText(body.education, 30) || null, occupation: safeText(body.occupation, 50) || null, qrCodeToken: randomUUID() } });
+    const latestMember = await prisma.user.findFirst({
+      where: { memberId: { startsWith: `KT-TH-${year}-` } },
+      orderBy: { memberId: "desc" },
+    });
+    let nextSeq = 1;
+    if (latestMember?.memberId) {
+      const parts = latestMember.memberId.split("-");
+      const seqStr = parts[parts.length - 1];
+      const seqNum = parseInt(seqStr, 10);
+      nextSeq = isNaN(seqNum) ? 1 : seqNum + 1;
+    }
+    const memberId = `KT-TH-${year}-${String(nextSeq).padStart(3, "0")}`;
+    const user = await prisma.user.create({ data: { memberId, fullName, email, passwordHash: await hash(process.env.DEFAULT_PASSWORD || "kartunmaju", 12), isDefaultPassword: true, gender: body.gender === "P" ? "P" : "L", birthPlace: safeText(body.birth_place, 50) || null, birthDate, phoneWa, rt: safeText(body.rt, 5) || "-", rw: safeText(body.rw, 5) || "-", address: safeText(body.address, 2000) || null, education: safeText(body.education, 30) || null, occupation: safeText(body.occupation, 50) || null, qrCodeToken: randomUUID() } });
     void prisma.auditLog.create({ data: { userId: user.id, action: "GFORM_MEMBER_IMPORTED", details: JSON.stringify({ memberId: user.memberId, email }) } }).catch((error) => console.error("Webhook audit log failed", error));
     return NextResponse.json({ message: "Anggota berhasil diimpor.", memberId: user.memberId }, { status: 201 });
   } catch { return errorResponse("Import anggota gagal. Data unik mungkin sudah digunakan.", 409); }
