@@ -7,9 +7,10 @@ import { format, isPast, isToday } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import {
   ArrowRight, Bell, CalendarClock, CalendarDays, FileText,
-  HeartHandshake, Home, Leaf, MapPin, Megaphone, MessageCircle,
+  HeartHandshake, Home, Leaf, LogInIcon, MapPin, Megaphone, MessageCircle,
   Package, Sparkles, TrendingUp, Users, Wallet,
 } from "lucide-react";
+import { NullTypes } from "@prisma/client/runtime/client";
 
 export const metadata: Metadata = {
   title: "TUNAS HARAPAN — Karang Taruna Dusun Kemitir",
@@ -74,7 +75,7 @@ export default async function LandingPage() {
                   process.env.NEXT_PUBLIC_GFORM_REGISTER_URL ??
                   "https://docs.google.com/forms/d/e/1FAIpQLSfmjLS5032T-arEmvWZLEcdeuVWePsJgKm3PStHiljthanisA/viewform?usp=publish-editor"
                 } className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#008F68] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#007A59] hover:shadow-md">Daftar untuk login <ArrowRight size={18} /></Link>
-              <Link href="#kegiatan" className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#008F68]/25 bg-white px-6 py-3.5 text-sm font-semibold text-[#008F68] transition-colors hover:bg-[#EAF7F0]"><CalendarClock size={18} /> Lihat Kegiatan</Link>
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#008F68]/25 bg-white px-6 py-3.5 text-sm font-semibold text-[#008F68] transition-colors hover:bg-[#EAF7F0]"> Masuk <LogInIcon size={18} /></Link>
             </div>
           </div>
           <div className="relative">
