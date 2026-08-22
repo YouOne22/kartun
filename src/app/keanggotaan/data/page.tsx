@@ -17,7 +17,7 @@ const formatDate = (v:string|null) => v && !Number.isNaN(new Date(v).getTime()) 
 const roleLabel = (v:string) => ({ KETUA:"Ketua", SEKRETARIS:"Sekretaris", PENGURUS:"Pengurus", BENDAHARA:"Bendahara", ANGGOTA:"Anggota" }[v] || v);
 
 export default function MembersPage(){
- const [members,setMembers]=useState<Member[]>([]),[query,setQuery]=useState(""),[user,setUser]=useState<SessionUser|null>(null),[form,setForm]=useState(initial),[selected,setSelected]=useState<Member|null>(null),[modal,setModal]=useState<"add"|"edit"|"detail"|null>(null),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false);
+ const [members,setMembers]=useState<Member[]>([]),[query,setQuery]=useState(""),[user,setUser]=useState<SessionUser|null>(null),[form,setForm]=useState(initial),[selected,setSelected]=useState<Member|null>(null),[modal,setModal]=useState<"add"|"edit"|"detail"|null>(null),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[photoOpen,setPhotoOpen]=useState(false),[photoMember,setPhotoMember]=useState<Member|null>(null);
  async function load(){const r=await fetch("/api/members",{cache:"no-store"});const d=await r.json() as {members?:Member[];message?:string};if(!r.ok){await showError(d.message||"Data anggota gagal dimuat.");return false}setMembers(d.members||[]);return true}
  useEffect(()=>{let active=true;Promise.all([fetch("/api/members",{cache:"no-store"}),fetch("/api/auth/session")]).then(async([mr,sr])=>{const md=await mr.json() as {members?:Member[];message?:string},sd=await sr.json() as {user?:SessionUser};if(!active)return;if(!mr.ok)await showError(md.message||"Data anggota gagal dimuat.");else setMembers(md.members||[]);setUser(sd.user||null);setLoading(false)}).catch(()=>{if(active){setLoading(false);void showError("Data anggota gagal dimuat.")}});return()=>{active=false}},[]);
  useEffect(()=>{if(!modal)return;const close=(e:KeyboardEvent)=>{if(e.key==="Escape")setModal(null)};document.addEventListener("keydown",close);return()=>document.removeEventListener("keydown",close)},[modal]);
@@ -101,9 +101,23 @@ export default function MembersPage(){
      header: "Anggota",
      render: (m: Member) => (
        <div className="flex items-center gap-3">
-         <Avatar member={m} small />
+                   <button
+            type="button"
+            title={user?.id === m.id ? "Edit profil" : m.avatarUrl ? "Lihat foto" : ""}
+            onClick={() => {
+              if (user?.id === m.id) {
+                openEditModal(m);
+              } else if (m.avatarUrl) {
+                setPhotoMember(m);
+                setPhotoOpen(true);
+              }
+            }}
+            className={user?.id === m.id ? "flex-shrink-0 rounded-full ring-2 ring-teal-200 transition hover:ring-teal-400 focus:outline-none focus:ring-teal-500 min-h-[44px] min-w-[44px] p-0 cursor-pointer" : "flex-shrink-0 cursor-pointer rounded-full ring-2 ring-slate-200 transition hover:ring-teal-400 focus:outline-none focus:ring-teal-500 min-h-[44px] min-w-[44px] p-0"}
+          >
+            <Avatar member={m} small />
+          </button>
          <div>
-           <p className="font-semibold">{m.fullName}</p>
+                                   <p className="font-semibold cursor-pointer" onClick={() => { if (user?.id === m.id) { openEditModal(m); } else { setSelected(m); setModal('detail'); } }}>{m.fullName}</p>
            <p className="font-mono text-xs text-slate-500">{m.memberId}</p>
          </div>
        </div>
@@ -274,6 +288,33 @@ export default function MembersPage(){
          </div>
        </form>
      </Modal>
+      {photoOpen && photoMember && photoMember.avatarUrl && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          onPointerDown={(e) => {
+            if (e.target === e.currentTarget) setPhotoOpen(false);
+          }}
+        >
+          <button
+            type="button"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              setPhotoOpen(false);
+            }}
+            className="absolute right-4 top-4 rounded-full bg-white/90 p-2 text-slate-700 shadow-lg transition hover:bg-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Tutup foto"
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={photoMember.avatarUrl}
+            alt={`Foto ${photoMember.fullName}`}
+            className="max-h-[85vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
+            onPointerDown={(e) => e.stopPropagation()}
+            draggable={false}
+          />
+        </div>
+      )}
    </DashboardShell>
  );
 }
@@ -349,6 +390,8 @@ function DetailModal({ member, close, user }: { member: Member; close: () => voi
           />
         </div>
       )}
-    </Modal>
+        </Modal>
   );
 }
+
+
