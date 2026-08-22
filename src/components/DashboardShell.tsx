@@ -8,6 +8,7 @@ import { CalendarDays, Camera, Copy, FileText, Home, IdCard, LogOut, Menu, Messa
 import { showSuccess } from "@/components/AlertProvider";
 import { QRCodeSVG } from "qrcode.react";
 import ChatWidget from "@/components/ChatWidget";
+import Avatar from "@/components/Avatar";
 
 export type SessionUser = {
   id: string;
@@ -109,7 +110,15 @@ export function DashboardShell({ children, title }: { children: ReactNode; title
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mb-6 flex items-center justify-between gap-3 px-2 py-1">
             <button type="button" onClick={() => setProfileOpen(true)} className="flex min-w-0 items-center gap-3 text-left group">
-              {user?.avatarUrl && !avatarFailed ? <img src={user.avatarUrl} alt={`Foto ${user.fullName}`} onError={() => setAvatarFailed(true)} className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#0F766E]" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-sm font-bold text-white ring-2 ring-transparent group-hover:ring-[#0F766E]">{user && initials(user.fullName)}</div>}
+              {user ? (
+                <Avatar
+                  member={{ fullName: user.fullName, avatarUrl: user.avatarUrl, gender: user.gender }}
+                  small
+                  className="shrink-0 h-11 w-11 ring-2 ring-transparent group-hover:ring-[#0F766E]"
+                />
+              ) : (
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F766E] text-sm font-bold text-white ring-2 ring-transparent group-hover:ring-[#0F766E]">?</div>
+              )}
               <div className="min-w-0"><p className="truncate text-sm font-bold text-teal-50 group-hover:text-[#0F766E]">{user?.fullName}</p><p className="mt-0.5 text-xs text-teal-300/70">{user && roleLabels[user.role]}</p></div>
             </button>
             <button aria-label="Tutup menu" onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-teal-300/70 hover:bg-[#0F766E]/10 md:hidden"><X size={19} /></button>
