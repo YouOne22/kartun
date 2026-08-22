@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 
 type StatCardProps = {
   title: string;
@@ -10,6 +11,7 @@ type StatCardProps = {
     value: string;
     isPositive: boolean;
   };
+  href?: string;
 };
 
 /**
@@ -22,9 +24,10 @@ export default function StatCard({
   icon,
   bgColor = '#0F766E',
   trend,
+  href,
 }: StatCardProps) {
-  return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm border border-slate-100">
+  const CardContent = (
+    <div className="rounded-2xl bg-white p-5 shadow-sm border border-slate-100 h-full">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-medium text-slate-500">{title}</p>
@@ -53,4 +56,14 @@ export default function StatCard({
       </div>
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block transition-transform hover:-translate-y-1">
+        {CardContent}
+      </Link>
+    );
+  }
+
+  return CardContent;
 }

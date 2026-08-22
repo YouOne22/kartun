@@ -91,7 +91,9 @@ export default function MembersPage(){
  }
  async function add(e:FormEvent){e.preventDefault();setSaving(true);try{const data=new FormData();Object.entries(form).forEach(([key,value])=>{if(key!=="avatarFile"&&key!=="id"&&typeof value==="string")data.append(key,value)});if(form.avatarFile)data.append("avatar",form.avatarFile);const r=await fetch("/api/members",{method:"POST",body:data}),d=await r.json() as {message?:string};if(!r.ok){await showError(d.message||"Anggota gagal ditambahkan.");return}setModal(null);setForm({...initial});await load();await showSuccess("Anggota berhasil ditambahkan.")}catch{await showError("Anggota gagal ditambahkan. Periksa koneksi Anda.")}finally{setSaving(false)}}
  const canManage=!!user&&["KETUA","SEKRETARIS","PENGURUS"].includes(user.role);
- const canDelete=!!user&&["KETUA","SEKRETARIS","PENGURUS"].includes(user.role);
+  const canDelete=!!user&&["KETUA","SEKRETARIS","PENGURUS"].includes(user.role);
+  // view contact if manager role or self
+  const canViewContactFor = (member: Member) => !!user && (['KETUA','SEKRETARIS','PENGURUS','BENDAHARA'].includes(user.role) || user.id===member.id);
 
  const columns = [
    {
@@ -110,13 +112,13 @@ export default function MembersPage(){
    {
      key: "contact",
      header: "Kontak",
-     render: (m: Member) => (
+     render: (m: Member) => canViewContactFor(m) ? (
        <>
          {m.email}
          <br />
          <span className="text-xs">{m.phoneWa}</span>
        </>
-     ),
+     ) : (<span className="text-xs">-</span>),
    },
    {
      key: "region",
@@ -228,7 +230,7 @@ export default function MembersPage(){
      </div>
 
      {modal === "detail" && selected && (
-       <DetailModal member={selected} close={() => { setModal(null); setSelected(null); }} />
+       <DetailModal member={selected} user={user} close={() => { setModal(null); setSelected(null); }} />
      )}
 
      <Modal
@@ -276,8 +278,9 @@ export default function MembersPage(){
  );
 }
 
-function DetailModal({ member, close }: { member: Member; close: () => void }) {
+function DetailModal({ member, close, user }: { member: Member; close: () => void; user: SessionUser | null }) {
   const [photoOpen, setPhotoOpen] = useState(false);
+  const canViewContact = !!user && (['KETUA','SEKRETARIS','PENGURUS','BENDAHARA'].includes(user.role) || user.id === member.id);
   const item = (label: string, value: string | null | undefined) => (
     <div>
       <p className="text-xs text-slate-500">{label}</p>
@@ -311,9 +314,9 @@ function DetailModal({ member, close }: { member: Member; close: () => void }) {
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         {item("Jenis kelamin", member.gender === "P" ? "Perempuan" : "Laki-laki")}
-        {item("Tempat, tanggal lahir", [member.birthPlace, formatDate(member.birthDate)].filter(Boolean).join(", ") || "-")}
-        {item("Email", member.email)}
-        {item("WhatsApp", member.phoneWa)}
+        {item("Tempat, tanggal lahir", canViewContact ? [member.birthPlace, formatDate(member.birthDate)].filter(Boolean).join(", ") || "-" : "-")}
+        {item("Email", canViewContact ? member.email : "-")}
+        {item("WhatsApp", canViewContact ? member.phoneWa : "-")}
         {item("Alamat", [member.address, `Dusun ${member.dusun}`, `RT ${member.rt} / RW ${member.rw}`].filter(Boolean).join(", "))}
         {item("Pendidikan", member.education)}
         {item("Pekerjaan", member.occupation)}

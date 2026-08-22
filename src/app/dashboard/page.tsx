@@ -83,8 +83,8 @@ export default function DashboardPage() {
 
         {/* Stat Cards */}
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard title="Total Anggota" value={data?.stats.members ?? "-"} icon={<Users size={19} />} bgColor="#0F766E" trend={{ value: activePct + "% aktif", isPositive: activePct >= 50 }} />
-          <StatCard title="Anggota Aktif" value={data?.stats.activeMembers ?? "-"} icon={<Users size={19} />} bgColor="#059669" trend={{ value: activePct + "% dari total", isPositive: true }} />
+          <StatCard title="Total Anggota" value={data?.stats.members ?? "-"} icon={<Users size={19} />} bgColor="#0F766E" trend={{ value: activePct + "% aktif", isPositive: activePct >= 50 }} href="/keanggotaan/data" />
+          <StatCard title="Anggota Aktif" value={data?.stats.activeMembers ?? "-"} icon={<Users size={19} />} bgColor="#059669" trend={{ value: activePct + "% dari total", isPositive: true }} href="/keanggotaan/data" />
           <StatCard title="Saldo Kas" value={data ? money.format(data.stats.balance) : "-"} icon={<Wallet size={19} />} bgColor="#F97316" trend={{ value: data?.stats.pendingLoans ? data.stats.pendingLoans + " pinjaman" : "Aman", isPositive: !data?.stats.pendingLoans }} />
           <StatCard title="Pengumuman" value={data?.stats.announcements ?? "-"} icon={<Megaphone size={19} />} bgColor="#3B82F6" trend={{ value: "Publik", isPositive: true }} />
         </section>

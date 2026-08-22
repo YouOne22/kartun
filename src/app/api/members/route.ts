@@ -78,7 +78,15 @@ export async function GET(request: Request) {
       select: memberSelect,
       orderBy: { fullName: "asc" },
     });
-    return NextResponse.json({ members });
+
+    // Hide contact & birthdate for non-privileged roles viewing other members
+    const canSeeAll = ["KETUA", "SEKRETARIS", "PENGURUS", "BENDAHARA"].includes(auth.session.role);
+    const safeMembers = canSeeAll ? members : members.map(m => {
+      if (m.id === auth.session.userId) return m;
+      return { ...m, email: null, phoneWa: null, birthDate: null, birthPlace: null };
+    });
+
+    return NextResponse.json({ members: safeMembers });
   } catch (error: any) {
     console.error("GET Members Error:", error);
     return errorResponse("Data anggota belum tersedia.", 503);
