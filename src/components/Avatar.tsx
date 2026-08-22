@@ -16,22 +16,17 @@ type AvatarProps = {
 export default function Avatar({ member, small = false }: AvatarProps) {
   const sizeClass = small ? 'h-9 w-9' : 'h-14 w-14';
   const defaultAvatar = member.gender === 'P' ? '/female.png' : '/male.png';
+  const imgSrc = member.avatarUrl || defaultAvatar;
 
-  return member.avatarUrl ? (
-    <Image
-      src={member.avatarUrl}
-      alt={`Foto ${member.fullName}`}
-      width={56}
-      height={56}
-      className={`${sizeClass} rounded-full object-cover`}
-    />
-  ) : (
-    <Image
-      src={defaultAvatar}
-      alt={`Foto ${member.fullName}`}
-      width={56}
-      height={56}
-      className={`${sizeClass} rounded-full object-cover`}
-    />
+  return (
+    <div className={`${sizeClass} relative flex-shrink-0 overflow-hidden rounded-full`}>
+      <Image
+        src={imgSrc}
+        alt={`Foto ${member.fullName}`}
+        fill
+        className="object-cover"
+        sizes={small ? "36px" : "56px"}
+      />
+    </div>
   );
 }
