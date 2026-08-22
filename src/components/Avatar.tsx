@@ -1,5 +1,3 @@
-import Image from 'next/image';
-
 type AvatarProps = {
   member: {
     fullName: string;
@@ -20,12 +18,10 @@ export default function Avatar({ member, small = false }: AvatarProps) {
 
   return (
     <div className={`${sizeClass} relative flex-shrink-0 overflow-hidden rounded-full`}>
-      <Image
+      <img
         src={imgSrc}
         alt={`Foto ${member.fullName}`}
-        fill
-        className="object-cover"
-        sizes={small ? "36px" : "56px"}
+        className="h-full w-full object-cover rounded-full"
       />
     </div>
   );
